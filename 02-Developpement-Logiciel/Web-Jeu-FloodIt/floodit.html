@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flood it !</title>
+    <script type="text/javascript" src="floodit.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="floodit.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body id="back">
+  <div id="front" class="container">
+    <main>
+    <br>
+    <h1>Flood it !</h1>
+    <br>
+    <p id="texte">
+        Le but de ce jeu est de remplir la grille ci-dessous d'une seule couleur en réalisant le moins de coup possible !
+        Le remplissage des cases se fait en sélectionnant une couleur de la palette puis en cliquant sur une case de couleur différente dans la grille.
+        Cette dernière ainsi que les cases de meme couleur qui lui sont reliées horiztontalement ou verticalement sont modifiées.
+        Réalisez quelques essais avant de jouer en  mode défi (mode avec nombre de coups limité). Vous pouvez également changer la taille de la grille et le nombre de couleurs présentes pour modifier la difficulté.
+    </p>
+    </main>
+  <br>
+  <div class="row">
+    <div class="col-7" id="grille"></div>
+  <div class="col-4">
+    <div class="paramètres">
+      <br>
+      <div class="row">
+        <div class="col-6">
+          <p class="param1">Taille</p>
+          <select id = "taille"></select>
+        </div>
+        <div class="col-6">
+          <p class="param1">Couleurs</p>
+          <select id = "nbcouleur"></select>
+        </div>
+      </div>
+      <br>
+      <p class="param">Palette</p>
+      <div id="palette"></div>
+      <br>
+      <p class="param">Couleur sélectionnée</p>
+      <div id="sel"></div>
+      <br>
+      <div class="row">
+        <div class="col-7">
+          <div class="al">
+            <button id="choixc" class="btn btn-primary">Couleurs aléatoires</button>
+          </div>
+        </div>
+        <div class="col-5">
+          <button id = "defi" class="btn btn-warning">Mode Defi</button>
+        </div>
+      </div>
+      <br>
+      <div class = "row">
+        <div class="col-12">
+          <button id="rejouer" class="btn btn-danger">Réinitialiser</button>
+        </div>
+      </div>
+      <br>
+      <div class="param" id="coup"></div>
+    </div>
+  </div>
+  </div> 
+  <br>
+  <br>
+  <br>
+</div>
+    
+</body>
+</html>

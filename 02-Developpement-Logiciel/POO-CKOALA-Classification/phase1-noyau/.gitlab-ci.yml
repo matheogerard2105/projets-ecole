@@ -1,0 +1,203 @@
+image: openjdk:17.0.1-slim 
+
+stages:
+  - prepare
+  - lint
+  - build
+  - build-tests
+  - test
+  - coverage
+  - report
+  - temp
+  - deploy 
+
+variables:
+  LIB_FOLDER: "lib"
+  SRC_FOLDER: "src"
+  TEST_FOLDER: "tests"
+  BUILD_FOLDER: "out"
+  JUNIT_REMOTE: "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.3/junit-platform-console-standalone-1.9.3.jar"
+  JUNIT_LOCAL: "$LIB_FOLDER/junit-platform-console-standalone.jar"
+  JACOCO_REMOTE: "https://search.maven.org/remotecontent?filepath=org/jacoco/jacoco/0.8.13/jacoco-0.8.13.zip"
+  JACOCO_LOCAL_ZIP: "$LIB_FOLDER/jacoco.zip"
+  CHECKSTYLE_REMOTE: "https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.16.0/checkstyle-10.16.0-all.jar"
+  CHECKSTYLE_LOCAL: "$LIB_FOLDER/checkstyle-10.16.0-all.jar"
+  PMD_REMOTE: "https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.17.0/pmd-dist-7.17.0-bin.zip"
+  PMD_LOCAL_ZIP: "$LIB_FOLDER/pmd.zip"
+  PMD_DIR_NAME: "pmd-bin-7.17.0"
+
+# --- BEFORE_SCRIPT (Installation des dépendances et Git) ---
+before_script:
+  - apt-get update && apt-get install -y curl unzip git
+  - mkdir -p $LIB_FOLDER
+  - mkdir -p $LIB_FOLDER/jacoco
+  
+  # Téléchargement des dépendances
+  - echo "Downloading JUnit..."
+  - curl -sSL $JUNIT_REMOTE -o $JUNIT_LOCAL
+  - echo "Downloading JaCoCo..."
+  - curl -sSL -o $JACOCO_LOCAL_ZIP $JACOCO_REMOTE
+  - unzip -q $JACOCO_LOCAL_ZIP -d $LIB_FOLDER/jacoco
+  - echo "Downloading Checkstyle..."
+  - curl -sSL -o $CHECKSTYLE_LOCAL $CHECKSTYLE_REMOTE
+  
+  # Configuration Git
+  - git fetch --unshallow || true
+  - git checkout $CI_COMMIT_REF_NAME
+
+# ----------------- PREPARE -----------------
+print-info:
+  stage: prepare
+  script:
+    - java -version
+    - ls -la
+
+# ----------------- LINT -----------------
+checkstyle:
+  stage: lint
+  script:
+    - echo "Running Checkstyle..."
+    - java -jar $CHECKSTYLE_LOCAL -c checkstyle.xml $SRC_FOLDER || true 
+  allow_failure: true
+
+check-duplicates:
+  stage: lint
+  script:
+    - curl -sSL $PMD_REMOTE -o $PMD_LOCAL_ZIP
+    - unzip -q $PMD_LOCAL_ZIP -d $LIB_FOLDER/
+    - PMD_BIN_PATH=$LIB_FOLDER/$PMD_DIR_NAME/bin
+    - chmod +x $PMD_BIN_PATH/pmd
+    - $PMD_BIN_PATH/pmd cpd --minimum-tokens 80 --dir $SRC_FOLDER || true
+  allow_failure: true
+
+# ----------------- BUILD -----------------
+compile-source:
+  stage: build
+  script:
+    - mkdir -p $BUILD_FOLDER/classes
+    - echo "Compiling source files with package structure..."
+    # -----------------------------------------------------------
+    # CORRECTION CLÉ : Compilation des sources avec -sourcepath
+    # On compile les fichiers .java et on indique à javac où trouver
+    # les racines des packages (src). Les classes compilées seront
+    # dans out/classes/src/...
+    # -----------------------------------------------------------
+    - javac -sourcepath $SRC_FOLDER -d $BUILD_FOLDER/classes $SRC_FOLDER/*.java
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+
+# ----------------- BUILD-TESTS -----------------
+compile-tests:
+  stage: build-tests
+  script:
+    - mkdir -p $BUILD_FOLDER/test-classes
+    - echo "Compiling test files with package structure..."
+    
+    # CLASSPATH: classes compilées source (out/classes) + JUnit
+    - CLASSPATH=$BUILD_FOLDER/classes:$JUNIT_LOCAL
+    
+    - javac -sourcepath $SRC_FOLDER:$TEST_FOLDER -cp "$CLASSPATH" -d $BUILD_FOLDER/test-classes $TEST_FOLDER/*.java
+    
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+  dependencies:
+    - compile-source
+
+# ----------------- TEST -----------------
+run-tests:
+  stage: test
+  script:
+    - echo "Running test mains from package tests"
+    # CLASSPATH pour l'exécution: classes compilées source + classes compilées tests
+    - CLASSPATH=$BUILD_FOLDER/classes:$BUILD_FOLDER/test-classes
+    - echo "=== HerediteInclusionTest (Tests d'isolation) ==="
+    - java -cp "$CLASSPATH" tests.HerediteInclusionTest
+    - echo "=== ChargementXmlTest (Vérification du parsing XML) ==="
+    - java -cp "$CLASSPATH" tests.ChargementXmlTest
+    - echo "=== ClassificationArbresTest (Vérification métier) ==="
+    - java -cp "$CLASSPATH" tests.ClassificationArbresTest
+    - echo "=== ClassificationNuagesTest (Vérification métier) ==="
+    - java -cp "$CLASSPATH" tests.ClassificationNuagesTest
+    - echo "=== LireXML (exécution avec data/arbres.xml) ==="
+    - java -cp "$CLASSPATH" tests.LireXML data/arbres.xml
+    - echo "=== ValidationTests (Tests de validation/exception) ==="
+    - java -cp "$CLASSPATH" tests.ValidationTests
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+  dependencies:
+    - compile-source
+    - compile-tests
+
+# ----------------- COVERAGE -----------------
+jacoco:
+  stage: coverage
+  script:
+    - echo "Running tests with JaCoCo agent to produce jacoco.exec"
+    - JACOCO_AGENT=$LIB_FOLDER/jacoco/lib/jacocoagent.jar
+    - CLASSPATH=$BUILD_FOLDER/classes:$BUILD_FOLDER/test-classes
+    
+    # Exécution des tests pour collecte de couverture (agrégation via append=true)
+    - java -javaagent:$JACOCO_AGENT=destfile=jacoco.exec -cp "$CLASSPATH" tests.HerediteInclusionTest
+    - java -javaagent:$JACOCO_AGENT=destfile=jacoco.exec,append=true -cp "$CLASSPATH" tests.ChargementXmlTest
+    - java -javaagent:$JACOCO_AGENT=destfile=jacoco.exec,append=true -cp "$CLASSPATH" tests.ClassificationArbresTest
+    - java -javaagent:$JACOCO_AGENT=destfile=jacoco.exec,append=true -cp "$CLASSPATH" tests.ClassificationNuagesTest
+    - java -javaagent:$JACOCO_AGENT=destfile=jacoco.exec,append=true -cp "$CLASSPATH" tests.LireXML data/arbres.xml
+    - java -javaagent:$JACOCO_AGENT=destfile=jacoco.exec,append=true -cp "$CLASSPATH" tests.ValidationTests
+  artifacts:
+    paths:
+      - jacoco.exec
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+  dependencies:
+    - compile-source
+    - compile-tests
+
+
+# ----------------- REPORT -----------------
+build-report:
+  stage: report
+  script:
+    - apt-get update && apt-get install -y libxml2-utils bc
+    - export JACOCO_CLI=$LIB_FOLDER/jacoco/lib/jacococli.jar
+    - export REPORT_DIR=$BUILD_FOLDER/jacoco
+    - mkdir -p $REPORT_DIR
+    
+    - java -jar $JACOCO_CLI report jacoco.exec --classfiles $BUILD_FOLDER/classes --sourcefiles $SRC_FOLDER --xml $REPORT_DIR/jacoco.xml
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: $BUILD_FOLDER/jacoco/jacoco.xml
+  dependencies:
+    - jacoco
+
+extract-coverage:
+  stage: temp
+  script: |
+    apt-get update && apt-get install -y bc libxml2-utils
+    
+    XML_FILE=$BUILD_FOLDER/jacoco/jacoco.xml
+
+    MISSED=$(xmllint --xpath 'string(/report/counter[@type="INSTRUCTION"]/@missed)' "$XML_FILE")
+    COVERED=$(xmllint --xpath 'string(/report/counter[@type="INSTRUCTION"]/@covered)' "$XML_FILE")
+
+    if [ -z "$COVERED" ] || [ -z "$MISSED" ]; then
+        COVERAGE="0.00"
+    else
+        TOTAL=$(echo "$COVERED + $MISSED" | bc -l)
+        PERCENTAGE=$(echo "scale=2; ($COVERED * 100) / $TOTAL" | bc -l)
+        COVERAGE=$(echo "$PERCENTAGE" | awk '{printf "%.2f", $1}')
+    fi
+    
+    echo "Coverage (instructions) : $COVERAGE %"
+  dependencies:
+    - build-report

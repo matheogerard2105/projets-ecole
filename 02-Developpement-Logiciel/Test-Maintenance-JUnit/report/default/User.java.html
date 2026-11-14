@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">// User.java
+public class User {
+
+    private String username;
+    private String password;
+
+<span class="fc" id="L7">    public User(String username, String password) {</span>
+<span class="fc" id="L8">        this.username = username;</span>
+<span class="fc" id="L9">        this.password = password;</span>
+<span class="fc" id="L10">    }</span>
+
+    // Returns true if the username and password are valid
+    public boolean isValid() {
+<span class="pc bpc" id="L14" title="3 of 6 branches missed.">        return username != null &amp;&amp; !username.isEmpty() &amp;&amp; password.length() &gt;=</span>
+        8;
+    }
+
+    // Changes the password if the current password is correct
+    public boolean changePassword(String currentPassword, String newPassword) {
+<span class="pc bpc" id="L20" title="2 of 4 branches missed.">        if (currentPassword.equals(this.password) &amp;&amp; newPassword.length() &gt;= 8)</span>
+        {
+<span class="fc" id="L22">            this.password = newPassword;</span>
+<span class="fc" id="L23">            return true;</span>
+        }
+<span class="nc" id="L25">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

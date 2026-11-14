@@ -1,0 +1,281 @@
+/**************************************
+
+    Pages d'administration
+
+***************************************/
+
+:root {
+    --fond: #f5f6f8;
+    --carte: #ffffff;
+    --texte: #1f2328;
+    --texte-doux: #5c636e;
+    --bordure: #d8dce2;
+    --principal: #1d5fa8;
+    --principal-texte: #ffffff;
+    --danger: #b42318;
+    --succes-fond: #e6f4ea;
+    --succes-texte: #1e6b34;
+    --erreur-fond: #fdecea;
+    --erreur-texte: #a1271b;
+    --inactif-fond: #eceef1;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--texte);
+    background-color: var(--fond);
+}
+
+main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+h1 {
+    font-size: 1.375rem;
+    margin: 0;
+}
+
+h2 {
+    font-size: 1.125rem;
+    margin: 0 0 0.75rem;
+}
+
+a {
+    color: var(--principal);
+}
+
+/* En-tête */
+
+.entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--carte);
+    border-bottom: 1px solid var(--bordure);
+}
+
+.entete nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+}
+
+/* Cartes et formulaires */
+
+.carte {
+    background-color: var(--carte);
+    border: 1px solid var(--bordure);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.formulaire,
+.login form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+input[type='text'],
+input[type='url'],
+input[type='password'] {
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    font: inherit;
+    border: 1px solid var(--bordure);
+    border-radius: 6px;
+}
+
+input:focus-visible,
+.btn:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--principal);
+    outline-offset: 2px;
+}
+
+.aide {
+    color: var(--texte-doux);
+    margin-top: 0;
+}
+
+/* Boutons */
+
+.btn {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--texte);
+    text-decoration: none;
+    background-color: var(--carte);
+    border: 1px solid var(--bordure);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-principal {
+    color: var(--principal-texte);
+    background-color: var(--principal);
+    border-color: var(--principal);
+}
+
+.btn-danger {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-lien {
+    color: var(--principal);
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.actions form {
+    margin: 0;
+}
+
+/* Messages */
+
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin: 0 0 1rem;
+}
+
+.flash-succes {
+    color: var(--succes-texte);
+    background-color: var(--succes-fond);
+}
+
+.flash-erreur {
+    color: var(--erreur-texte);
+    background-color: var(--erreur-fond);
+}
+
+/* Tableau */
+
+.tableau {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.tableau th {
+    text-align: left;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--texte-doux);
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--bordure);
+}
+
+.tableau td {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--bordure);
+    vertical-align: middle;
+}
+
+.tableau td.actions {
+    margin-top: 0;
+}
+
+.tableau tr.inactif {
+    background-color: var(--inactif-fond);
+    color: var(--texte-doux);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.badge-actif {
+    color: var(--succes-texte);
+    background-color: var(--succes-fond);
+}
+
+.badge-inactif {
+    color: var(--texte-doux);
+    background-color: var(--carte);
+    border: 1px solid var(--bordure);
+}
+
+/* Connexion */
+
+.login {
+    max-width: 380px;
+    padding-top: 3rem;
+}
+
+.login h1 {
+    margin-bottom: 1rem;
+}
+
+.login button {
+    margin-top: 1rem;
+}
+
+/* Mobile : le tableau devient une liste de cartes */
+
+@media (max-width: 640px) {
+    .tableau thead {
+        display: none;
+    }
+
+    .tableau tr {
+        display: block;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--bordure);
+    }
+
+    .tableau td {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.25rem 0.5rem;
+        border: none;
+    }
+
+    .tableau td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--texte-doux);
+    }
+
+    .tableau td.actions::before {
+        content: none;
+    }
+}

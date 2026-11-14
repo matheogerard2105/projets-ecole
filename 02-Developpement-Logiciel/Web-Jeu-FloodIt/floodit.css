@@ -1,0 +1,89 @@
+table{
+    background-color : black;
+    margin: auto;
+    box-shadow:0px 0px 5px rgb(255, 255, 255);
+    margin-left: 15%;
+}
+#choixc{
+    margin-left: 12%;
+    width: 90%;
+    margin-right: 0%;
+}
+#defi{
+    margin-left:0%;
+    width: 80%;
+    margin-right: 20%;
+}
+#rejouer{
+    margin-left:33%;
+    width: 30%;
+}
+.case{
+    width: 30px;
+    height: 30px;
+    border: solid black;
+}
+#palette{
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+}
+#sel{
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+    height: 50px;
+    border: solid black;
+    text-align: center;
+    text-size-adjust: auto;
+    text-overflow: ellipsis;
+    justify-content: center;
+}
+.param{
+    font-weight: bold;
+    text-align: center;
+    font-style: italic;
+    text-transform: capitalize;
+}
+.param1{
+    font-weight: bold;
+    margin-left: 20%;
+    margin-right: 20%;
+    font-style: italic;
+    text-transform: capitalize;
+}
+.paramètres{
+    background-color: blanchedalmond;
+    height: 500px;
+    box-shadow:0px 0px 5px rgb(255, 255, 255);
+    border-radius: 2%;
+}
+#taille{
+    margin-left: 30%;
+}
+#nbcouleur{
+    margin-left: 20%;
+    margin-right: 20%;
+}
+#back{
+    background-color: blanchedalmond;
+}
+#front{
+    background-color:rgb(32, 32, 32);
+}
+h1{
+    
+    text-align: center;
+    color:blanchedalmond;
+    text-shadow: 0px 0px 5px black;
+}
+#texte {
+    color: blanchedalmond;
+    margin-left: 80px;
+    margin-right: 80px;
+    text-align: justify;
+    text-shadow: 0px 0px 5px rgb(0, 0, 0);
+}

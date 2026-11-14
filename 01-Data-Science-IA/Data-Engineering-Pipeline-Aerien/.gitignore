@@ -1,0 +1,8 @@
+bronze/
+warehouse.duckdb
+warehouse.duckdb.wal
+*.part
+__pycache__/
+*.pyc
+venv/
+.venv/

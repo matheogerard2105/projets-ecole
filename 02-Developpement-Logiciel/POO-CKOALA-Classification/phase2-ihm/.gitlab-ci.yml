@@ -1,0 +1,138 @@
+stages:
+  - prepare
+  - build
+  - build-tests
+  - test
+  - coverage
+  - report
+
+image: eclipse-temurin:17-jdk
+
+variables:
+  LIB_FOLDER: "lib"
+  SRC_FOLDER: "src"
+  TEST_FOLDER: "tests" 
+  BUILD_FOLDER: "out"
+  
+  JUNIT_REMOTE: "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.9.3/junit-platform-console-standalone-1.9.3.jar"
+  JUNIT_LOCAL: $LIB_FOLDER/"junit-platform-console-standalone.jar"
+  
+  JACOCO_REMOTE: "https://search.maven.org/remotecontent?filepath=org/jacoco/jacoco/0.8.13/jacoco-0.8.13.zip"
+  JACOCO_LOCAL_ZIP: $LIB_FOLDER/"jacoco.zip"
+
+before_script:
+  - apt-get update && apt-get install -y curl unzip libxml2-utils bc
+  - mkdir -p lib
+  - curl $JUNIT_REMOTE -o $JUNIT_LOCAL
+  - curl -L $JACOCO_REMOTE -o $JACOCO_LOCAL_ZIP
+  - mkdir -p lib/jacoco
+  - unzip -o $JACOCO_LOCAL_ZIP -d $LIB_FOLDER/jacoco
+
+print-info:
+  stage: prepare
+  script:
+    - echo "Using Java version:"
+    - java -version
+
+list-lib-content:
+  stage: prepare
+  script:
+    - echo "Contenu du dossier lib :"
+    - ls -laR $LIB_FOLDER
+
+compile:
+  stage: build
+  script:
+    - echo "Compilation du code source..."
+    - mkdir -p $BUILD_FOLDER/classes
+    - javac -encoding UTF-8 -d $BUILD_FOLDER/classes $SRC_FOLDER/*.java
+    - echo "Compilation terminée."
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+
+compile-tests:
+  stage: build-tests
+  script:
+    - echo "Compilation des fichiers de test..."
+    - mkdir -p $BUILD_FOLDER/test-classes
+    - echo "Vérification de l'emplacement des tests :"
+    - ls -R
+    - javac -encoding UTF-8 -cp "$JUNIT_LOCAL:$BUILD_FOLDER/classes" -d $BUILD_FOLDER/test-classes $TEST_FOLDER/*.java
+    - echo "Compilation des tests terminée."
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+
+run-tests:
+  stage: test
+  script:
+    - echo "Lancement des tests JUnit..."
+    - java -jar $JUNIT_LOCAL --class-path "$BUILD_FOLDER/classes:$BUILD_FOLDER/test-classes" --scan-class-path
+    - echo "Tests terminés."
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+    expire_in: 1 week
+
+jacoco:
+  stage: coverage
+  script:
+    - echo "Lancement des tests avec JaCoCo..."
+    - java -javaagent:$LIB_FOLDER/jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -jar $JUNIT_LOCAL --class-path "$BUILD_FOLDER/classes:$BUILD_FOLDER/test-classes" --scan-class-path
+    - echo "Fichier jacoco.exec créé."
+  artifacts:
+    paths:
+      - $BUILD_FOLDER/
+      - jacoco.exec
+    expire_in: 1 week
+
+build-report:
+  stage: report
+  script:
+    - echo "Génération des rapports de couverture (classes filtrées)..."
+    # Création des dossiers pour les classes filtrées
+    - mkdir -p $BUILD_FOLDER/filtered-classes
+    
+    # Copie uniquement des classes à analyser
+    - |
+      for class in Categorie DomainesValeurs Observation; do
+        if [ -f "$BUILD_FOLDER/classes/${class}.class" ]; then
+          cp "$BUILD_FOLDER/classes/${class}.class" "$BUILD_FOLDER/filtered-classes/"
+          echo "Classe ${class}.class copiée pour l'analyse"
+        else
+          echo "ATTENTION: Classe ${class}.class non trouvée"
+        fi
+      done
+    
+    # Génération du rapport uniquement sur les classes filtrées
+    - java -jar $LIB_FOLDER/jacoco/lib/jacococli.jar report jacoco.exec --classfiles $BUILD_FOLDER/filtered-classes --sourcefiles $SRC_FOLDER --xml report.xml --html report-html
+    - echo "Rapport XML (report.xml) généré."
+    - echo "Rapport HTML (dossier report-html) généré."
+  artifacts:
+    paths:
+      - report.xml
+      - report-html/ 
+    expire_in: 1 week
+      
+extract-coverage:
+  stage: report
+  needs:
+    - build-report
+  dependencies:
+    - build-report
+  script:
+    - echo "Extraction du taux de couverture..."
+    - |
+      COVERED=$(xmllint --xpath "sum(//counter[@type='INSTRUCTION']/@covered)" report.xml)
+      MISSED=$(xmllint --xpath "sum(//counter[@type='INSTRUCTION']/@missed)" report.xml)
+      TOTAL=$(echo "$COVERED + $MISSED" | bc)
+      COVERAGE=$(echo "scale=2; $COVERED * 100 / $TOTAL" | bc)
+      echo "Code Coverage: ${COVERAGE}%"
+  coverage: '/Code Coverage: (\d+\.?\d*)%/'
+  artifacts:
+    paths:
+      - report.xml
+    expire_in: 1 week

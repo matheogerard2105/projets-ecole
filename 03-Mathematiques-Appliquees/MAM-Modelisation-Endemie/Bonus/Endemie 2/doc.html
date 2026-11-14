@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport de Projet ISIA4 : Modélisation SIS</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .header-title {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header-title h1 { margin: 0; font-size: 2.5em; letter-spacing: -1px; }
+        .header-title p { margin-top: 10px; opacity: 0.9; font-size: 1.1em; }
+
+        .analysis-section {
+            max-width: 1100px;
+            margin: 0 auto 40px auto;
+            padding: 40px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: #2b2d42;
+        }
+        h2 { color: #4361ee; border-bottom: 2px solid #f0f2f9; padding-bottom: 10px; margin-top: 30px; }
+        h3 { color: #3a0ca3; margin-top: 25px; border-left: 4px solid #4361ee; padding-left: 15px; }
+        
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 25px 0; font-size: 0.95em; }
+        .comparison-table th, .comparison-table td { border: 1px solid #edf2f7; padding: 15px; text-align: left; }
+        .comparison-table th { background-color: #f8f9fa; color: #4361ee; }
+        
+        .formula-box { background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px inset #e2e8f0; margin: 20px 0; text-align: center; font-size: 1.1em; }
+        .highlight { font-weight: bold; color: #4361ee; }
+        .important-note { background: #fff4e6; border-left: 4px solid #fd7e14; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        ul li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="header-title">
+        <h1>Analyse de la Persistance du Caractère Endémique</h1>
+        <p>Projet ISIA4 : Modélisation Stochastique vs Déterministe d'une Maladie sans Immunité</p>
+    </header>
+
+    <div id="simulation"></div>
+
+    <div class="analysis-section">
+        <h2>I. Fondements du Modèle Stochastique</h2>
+        <p>
+            L'objectif de ce projet est de représenter l'émergence d'un état endémique pour une maladie de courte durée, caractérisée par une absence totale d'immunité après infection. La population de taille $N$ est partitionnée en deux catégories : les individus infectés ($I_n$) et les individus sains ($N - I_n$).
+        </p>
+
+        <h3>1. La Chaîne de Markov Homogène</h3>
+        <p>
+            Nous modélisons l'évolution de l'infection par une suite $(I_n)_{n \in \mathbb{N}}$ sur l'espace d'états $E = \{0, 1, \dots, N\}$. Les transitions sont régies par l'indépendance de la capacité des individus infectés à transmettre le virus.
+        </p>
+        <ul>
+            <li><strong>Guérison Immédiate :</strong> Un individu infecté à l'instant $n$ redevient sain à l'instant $n+1$ avec une probabilité de 1.</li>
+            <li><strong>Contagion Binomiale :</strong> La probabilité qu'un individu sain soit infecté par au moins l'un des $i$ malades présents est $P = 1 - q^i$.</li>
+            <li><strong>Probabilités de Transition :</strong> Le passage de $i$ à $j$ infectés suit une loi binomiale $\mathcal{B}(N, 1-q^i)$ :
+                <div class="formula-box">
+                    $p_{i,j} = \mathbb{P}(I_{n+1} = j \mid I_n = i) = \binom{N}{j} (1 - q^i)^j (q^i)^{N-j}$
+                </div>
+            </li>
+        </ul>
+        
+
+        <h3>2. Irréductibilité et État Absorbant</h3>
+        <p>
+            L'analyse du graphe de transition révèle que l'état $0$ est un <strong>état absorbant</strong> ($p_{0,0} = 1$). Une fois atteint, la maladie disparaît définitivement.
+        </p>
+        <div class="important-note">
+            <strong>Variable $T$ (Temps d'extinction) :</strong> Elle représente le premier instant où $I_n = 0$. Mathématiquement, pour toute chaîne de Markov finie possédant un état absorbant accessible depuis n'importe quel autre état, l'extinction est <strong>presque sûre</strong> ($T < \infty$ avec probabilité 1).
+        </div>
+
+        <h2>II. Le Modèle Déterministe et Transition de Phase</h2>
+        <p>
+            Lorsque la taille de la population $N$ devient importante, les fluctuations stochastiques s'estompent au profit d'une dynamique moyenne décrite par $I_{n+1} = (N - I_n)(1 - q^{I_n})$.
+        </p>
+
+        <h3>1. Linéarisation et Seuil Critique</h3>
+        <p>
+            En posant $x_n = I_n/N$, nous étudions la suite itérative $x_{n+1} = g(x_n)$ où $g(x) = (1-x)(1-e^{-Ax})$. La constante $A$ est définie par :
+        </p>
+        <div class="formula-box">
+            $A = N \ln(1/q)$
+        </div>
+        
+        <h3>2. Analyse du Point Fixe et Stabilité</h3>
+        <p>
+            L'existence d'une endémie dépend de la valeur de $g'(0) = A$ :
+        </p>
+        <ul>
+            <li><strong>Si $A \le 1$ :</strong> L'origine est l'unique point fixe attracteur. La maladie s'éteint globalement (Régime d'extinction).</li>
+            <li><strong>Si $A > 1$ :</strong> L'origine devient instable et il apparaît un second point fixe stable $x^* \in ]0, 1/2[$. La maladie persiste à un niveau constant (Régime endémique).</li>
+        </ul>
+        
+
+        <h2>III. Synthèse Comparative</h2>
+        
+        <h3>1. Compréhension du Modèle SIR (Référence)</h3>
+        <p>
+            Contrairement à notre modèle SIS où les individus alternent entre sains et infectés, le modèle SIR introduit une irréversibilité : une fois guéri, un individu ne peut plus retomber malade. La population est divisée en trois groupes distincts :
+        </p>
+        <ul>
+            <li><strong>S (Susceptibles) :</strong> Individus sains pouvant contracter la maladie.</li>
+            <li><strong>I (Infectés) :</strong> Individus porteurs du pathogène et capables de le transmettre.</li>
+            <li><strong>R (Recovered/Retirés) :</strong> Individus ayant survécu à la maladie et bénéficiant désormais d'une immunité permanente.</li>
+        </ul>
+        <p>
+            Dans le modèle SIR, l'épidémie s'arrête mécaniquement par l'épuisement des cibles (sujets $S$) et l'atteinte de l'immunité grégaire, rendant le virus incapable de trouver de nouveaux hôtes.
+        </p>
+
+        <h3>2. Tableau Comparatif Technique</h3>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Dimension de comparaison</th>
+                    <th>Modèle SIR Spatial (Référence)</th>
+                    <th>Notre Modèle SIS Markovien (Projet)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Mémoire du système</strong></td>
+                    <td>Immunité acquise (état absorbant individuel)</td>
+                    <td>Pas d'immunité (système sans mémoire)</td>
+                </tr>
+                <tr>
+                    <td><strong>Finalité</strong></td>
+                    <td>Épidémie ponctuelle : extinction par manque de "combustible"</td>
+                    <td>Endémie possible : circulation indéfinie</td>
+                </tr>
+                <tr>
+                    <td><strong>Comportement Asymptotique</strong></td>
+                    <td>Convergence systématique vers 0 infecté</td>
+                    <td>Oscillations autour de $x^*$ (si $A>1$)</td>
+                </tr>
+                <tr>
+                    <td><strong>Seuil critique</strong></td>
+                    <td>Défini par le $R_0$ (Taux de reproduction)</td>
+                    <td>Défini par la constante $A$ ($N \ln(1/q)$)</td>
+                </tr>
+                <tr>
+                    <td><strong>Rôle de la population $N$</strong></td>
+                    <td>Définit la vitesse de propagation</td>
+                    <td>Définit la survie de la maladie (Transition de phase)</td>
+                </tr>
+                <tr>
+                    <td><strong>État de la population</strong></td>
+                    <td>La population change de composition ($S \rightarrow R$)</td>
+                    <td>Catégories constantes ($S \rightleftharpoons I$ en boucle)</td>
+                </tr>
+                <tr>
+                    <td><strong>Sensibilité aux fluctuations</strong></td>
+                    <td>Faible (processus de saturation)</td>
+                    <td>Cruciale (détermine le temps d'extinction $T$)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <strong>Conclusion :</strong> Notre étude met en relief la dualité entre la théorie déterministe (prédisant une stabilité endémique) et la réalité stochastique. L'inclusion du modèle SIR souligne que le caractère endémique n'est pas automatique : il dépend strictement de l'absence d'immunité et d'une taille de population $N$ suffisante pour maintenir la circulation du virus malgré les guérisons systématiques. En pratique, même en régime théorique $A > 1$, une population trop petite finira par subir une extinction accidentelle due aux aléas de la contagion.
+        </p>
+    </div>
+
+    <footer id="footer-container" style="text-align: center; padding: 40px; border-top: 1px solid #eee; background: #f8f9fa;">
+        <p id="version">Projet de Modélisation ISIA4</p>
+        <p class="authors">Réalisé par : <strong>HANI Nabil</strong> & <strong>GERARD Mathéo</strong></p>
+        <p style="font-size: 0.85em; color: #666; margin-top: 15px;">Encadrement : Analyse des probabilités de transition $p_{i,j}$</p>
+    </footer>
+
+    <script src="endemie2.js"></script>
+</body>
+</html>

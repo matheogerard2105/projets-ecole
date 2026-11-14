@@ -1,0 +1,195 @@
+iso3,country,pays,continent,region_oms
+AFG,Afghanistan,Afghanistan,Méditerranée orientale,Eastern Mediterranean
+ZAF,South Africa,Afrique du Sud,Afrique,Africa
+ALB,Albania,Albanie,Europe,Europe
+DZA,Algeria,Algérie,Afrique,Africa
+DEU,Germany,Allemagne,Europe,Europe
+AND,Andorra,Andorre,Europe,Europe
+AGO,Angola,Angola,Afrique,Africa
+ATG,Antigua and Barbuda,Antigua-et-Barbuda,Amériques,Americas
+SAU,Saudi Arabia,Arabie saoudite,Méditerranée orientale,Eastern Mediterranean
+ARG,Argentina,Argentine,Amériques,Americas
+ARM,Armenia,Arménie,Europe,Europe
+AUS,Australia,Australie,Pacifique occidental,Western Pacific
+AUT,Austria,Autriche,Europe,Europe
+AZE,Azerbaijan,Azerbaïdjan,Europe,Europe
+BHS,Bahamas,Bahamas,Amériques,Americas
+BHR,Bahrain,Bahreïn,Méditerranée orientale,Eastern Mediterranean
+BGD,Bangladesh,Bangladesh,Asie du Sud-Est,South-East Asia
+BRB,Barbados,Barbade,Amériques,Americas
+BEL,Belgium,Belgique,Europe,Europe
+BLZ,Belize,Belize,Amériques,Americas
+BTN,Bhutan,Bhoutan,Asie du Sud-Est,South-East Asia
+MMR,Myanmar,Birmanie,Asie du Sud-Est,South-East Asia
+BOL,Bolivia (Plurinational State of),Bolivie,Amériques,Americas
+BIH,Bosnia and Herzegovina,Bosnie-Herzégovine,Europe,Europe
+BWA,Botswana,Botswana,Afrique,Africa
+BRN,Brunei Darussalam,Brunéi Darussalam,Pacifique occidental,Western Pacific
+BRA,Brazil,Brésil,Amériques,Americas
+BGR,Bulgaria,Bulgarie,Europe,Europe
+BFA,Burkina Faso,Burkina Faso,Afrique,Africa
+BDI,Burundi,Burundi,Afrique,Africa
+BLR,Belarus,Bélarus,Europe,Europe
+BEN,Benin,Bénin,Afrique,Africa
+KHM,Cambodia,Cambodge,Pacifique occidental,Western Pacific
+CMR,Cameroon,Cameroun,Afrique,Africa
+CAN,Canada,Canada,Amériques,Americas
+CPV,Cabo Verde,Cap-Vert,Afrique,Africa
+CHL,Chile,Chili,Amériques,Americas
+CHN,China,Chine,Pacifique occidental,Western Pacific
+CYP,Cyprus,Chypre,Europe,Europe
+COL,Colombia,Colombie,Amériques,Americas
+COM,Comoros,Comores,Afrique,Africa
+PRK,Democratic People's Republic of Korea,Corée du Nord,Asie du Sud-Est,South-East Asia
+KOR,Republic of Korea,Corée du Sud,Pacifique occidental,Western Pacific
+CRI,Costa Rica,Costa Rica,Amériques,Americas
+HRV,Croatia,Croatie,Europe,Europe
+CUB,Cuba,Cuba,Amériques,Americas
+CIV,Côte d'Ivoire,Côte d'Ivoire,Afrique,Africa
+DNK,Denmark,Danemark,Europe,Europe
+DJI,Djibouti,Djibouti,Méditerranée orientale,Eastern Mediterranean
+DMA,Dominica,Dominique,Amériques,Americas
+ESP,Spain,Espagne,Europe,Europe
+EST,Estonia,Estonie,Europe,Europe
+SWZ,Eswatini,Eswatini,Afrique,Africa
+FJI,Fiji,Fidji,Pacifique occidental,Western Pacific
+FIN,Finland,Finlande,Europe,Europe
+FRA,France,France,Europe,Europe
+GAB,Gabon,Gabon,Afrique,Africa
+GMB,Gambia,Gambie,Afrique,Africa
+GHA,Ghana,Ghana,Afrique,Africa
+GRD,Grenada,Grenade,Amériques,Americas
+GRC,Greece,Grèce,Europe,Europe
+GTM,Guatemala,Guatemala,Amériques,Americas
+GIN,Guinea,Guinée,Afrique,Africa
+GNQ,Equatorial Guinea,Guinée Équatoriale,Afrique,Africa
+GNB,Guinea-Bissau,Guinée-Bissau,Afrique,Africa
+GUY,Guyana,Guyana,Amériques,Americas
+GEO,Georgia,Géorgie,Europe,Europe
+HTI,Haiti,Haïti,Amériques,Americas
+HND,Honduras,Honduras,Amériques,Americas
+HUN,Hungary,Hongrie,Europe,Europe
+IND,India,Inde,Asie du Sud-Est,South-East Asia
+IDN,Indonesia,Indonésie,Asie du Sud-Est,South-East Asia
+IRQ,Iraq,Irak,Méditerranée orientale,Eastern Mediterranean
+IRN,Iran (Islamic Republic of),Iran,Méditerranée orientale,Eastern Mediterranean
+IRL,Ireland,Irlande,Europe,Europe
+ISL,Iceland,Islande,Europe,Europe
+ISR,Israel,Israël,Europe,Europe
+ITA,Italy,Italie,Europe,Europe
+JAM,Jamaica,Jamaïque,Amériques,Americas
+JPN,Japan,Japon,Pacifique occidental,Western Pacific
+JOR,Jordan,Jordanie,Méditerranée orientale,Eastern Mediterranean
+KAZ,Kazakhstan,Kazakhstan,Europe,Europe
+KEN,Kenya,Kenya,Afrique,Africa
+KGZ,Kyrgyzstan,Kirghizistan,Europe,Europe
+KIR,Kiribati,Kiribati,Pacifique occidental,Western Pacific
+KWT,Kuwait,Koweït,Méditerranée orientale,Eastern Mediterranean
+LAO,Lao People's Democratic Republic,Laos,Pacifique occidental,Western Pacific
+LSO,Lesotho,Lesotho,Afrique,Africa
+LVA,Latvia,Lettonie,Europe,Europe
+LBN,Lebanon,Liban,Méditerranée orientale,Eastern Mediterranean
+LBY,Libya,Libye,Méditerranée orientale,Eastern Mediterranean
+LBR,Liberia,Libéria,Afrique,Africa
+LTU,Lithuania,Lituanie,Europe,Europe
+LUX,Luxembourg,Luxembourg,Europe,Europe
+MKD,Republic of North Macedonia,Macédoine du Nord,Europe,Europe
+MDG,Madagascar,Madagascar,Afrique,Africa
+MYS,Malaysia,Malaisie,Pacifique occidental,Western Pacific
+MWI,Malawi,Malawi,Afrique,Africa
+MDV,Maldives,Maldives,Asie du Sud-Est,South-East Asia
+MLI,Mali,Mali,Afrique,Africa
+MLT,Malta,Malte,Europe,Europe
+MAR,Morocco,Maroc,Méditerranée orientale,Eastern Mediterranean
+MUS,Mauritius,Maurice,Afrique,Africa
+MRT,Mauritania,Mauritanie,Afrique,Africa
+MEX,Mexico,Mexique,Amériques,Americas
+FSM,Micronesia (Federated States of),Micronésie,Pacifique occidental,Western Pacific
+MDA,Republic of Moldova,Moldavie,Europe,Europe
+MCO,Monaco,Monaco,Europe,Europe
+MNG,Mongolia,Mongolie,Pacifique occidental,Western Pacific
+MNE,Montenegro,Monténégro,Europe,Europe
+MOZ,Mozambique,Mozambique,Afrique,Africa
+NAM,Namibia,Namibie,Afrique,Africa
+NRU,Nauru,Nauru,Pacifique occidental,Western Pacific
+NIC,Nicaragua,Nicaragua,Amériques,Americas
+NER,Niger,Niger,Afrique,Africa
+NGA,Nigeria,Nigeria,Afrique,Africa
+NIU,Niue,Nioue,Pacifique occidental,Western Pacific
+NOR,Norway,Norvège,Europe,Europe
+NZL,New Zealand,Nouvelle-Zélande,Pacifique occidental,Western Pacific
+NPL,Nepal,Népal,Asie du Sud-Est,South-East Asia
+OMN,Oman,Oman,Méditerranée orientale,Eastern Mediterranean
+UGA,Uganda,Ouganda,Afrique,Africa
+UZB,Uzbekistan,Ouzbékistan,Europe,Europe
+PAK,Pakistan,Pakistan,Méditerranée orientale,Eastern Mediterranean
+PLW,Palau,Palaos,Pacifique occidental,Western Pacific
+PAN,Panama,Panama,Amériques,Americas
+PNG,Papua New Guinea,Papouasie-Nouvelle-Guinée,Pacifique occidental,Western Pacific
+PRY,Paraguay,Paraguay,Amériques,Americas
+NLD,Netherlands,Pays-Bas,Europe,Europe
+PHL,Philippines,Philippines,Pacifique occidental,Western Pacific
+POL,Poland,Pologne,Europe,Europe
+PRT,Portugal,Portugal,Europe,Europe
+PER,Peru,Pérou,Amériques,Americas
+QAT,Qatar,Qatar,Méditerranée orientale,Eastern Mediterranean
+ROU,Romania,Roumanie,Europe,Europe
+GBR,United Kingdom of Great Britain and Northern Ireland,Royaume-Uni,Europe,Europe
+RUS,Russian Federation,Russie,Europe,Europe
+RWA,Rwanda,Rwanda,Afrique,Africa
+CAF,Central African Republic,République centrafricaine,Afrique,Africa
+DOM,Dominican Republic,République dominicaine,Amériques,Americas
+COG,Congo,République du Congo,Afrique,Africa
+COD,Democratic Republic of the Congo,République démocratique du Congo,Afrique,Africa
+KNA,Saint Kitts and Nevis,Saint-Christophe-et-Niévès,Amériques,Americas
+SMR,San Marino,Saint-Marin,Europe,Europe
+VCT,Saint Vincent and the Grenadines,Saint-Vincent-et-les-Grenadines,Amériques,Americas
+LCA,Saint Lucia,Sainte-Lucie,Amériques,Americas
+SLB,Solomon Islands,"Salomon, Îles",Pacifique occidental,Western Pacific
+SLV,El Salvador,Salvador,Amériques,Americas
+WSM,Samoa,Samoa,Pacifique occidental,Western Pacific
+STP,Sao Tome and Principe,Sao Tomé-et-Principe,Afrique,Africa
+SRB,Serbia,Serbie,Europe,Europe
+SYC,Seychelles,Seychelles,Afrique,Africa
+SLE,Sierra Leone,Sierra Leone,Afrique,Africa
+SGP,Singapore,Singapour,Pacifique occidental,Western Pacific
+SVK,Slovakia,Slovaquie,Europe,Europe
+SVN,Slovenia,Slovénie,Europe,Europe
+SOM,Somalia,Somalie,Méditerranée orientale,Eastern Mediterranean
+SDN,Sudan,Soudan,Méditerranée orientale,Eastern Mediterranean
+SSD,South Sudan,Soudan du Sud,Afrique,Africa
+LKA,Sri Lanka,Sri Lanka,Asie du Sud-Est,South-East Asia
+CHE,Switzerland,Suisse,Europe,Europe
+SUR,Suriname,Surinam,Amériques,Americas
+SWE,Sweden,Suède,Europe,Europe
+SYR,Syrian Arab Republic,Syrie,Méditerranée orientale,Eastern Mediterranean
+SEN,Senegal,Sénégal,Afrique,Africa
+TJK,Tajikistan,Tadjikistan,Europe,Europe
+TZA,United Republic of Tanzania,Tanzanie,Afrique,Africa
+TCD,Chad,Tchad,Afrique,Africa
+CZE,Czechia,Tchéquie,Europe,Europe
+THA,Thailand,Thaïlande,Asie du Sud-Est,South-East Asia
+TLS,Timor-Leste,Timor oriental,Asie du Sud-Est,South-East Asia
+TGO,Togo,Togo,Afrique,Africa
+TON,Tonga,Tonga,Pacifique occidental,Western Pacific
+TTO,Trinidad and Tobago,Trinité-et-Tobago,Amériques,Americas
+TUN,Tunisia,Tunisie,Méditerranée orientale,Eastern Mediterranean
+TKM,Turkmenistan,Turkménistan,Europe,Europe
+TUR,Turkey,Turquie,Europe,Europe
+TUV,Tuvalu,Tuvalu,Pacifique occidental,Western Pacific
+UKR,Ukraine,Ukraine,Europe,Europe
+URY,Uruguay,Uruguay,Amériques,Americas
+VUT,Vanuatu,Vanuatu,Pacifique occidental,Western Pacific
+VEN,Venezuela (Bolivarian Republic of),Venezuela,Amériques,Americas
+VNM,Viet Nam,Viêt Nam,Pacifique occidental,Western Pacific
+YEM,Yemen,Yémen,Méditerranée orientale,Eastern Mediterranean
+ZMB,Zambia,Zambie,Afrique,Africa
+ZWE,Zimbabwe,Zimbabwe,Afrique,Africa
+EGY,Egypt,Égypte,Méditerranée orientale,Eastern Mediterranean
+ARE,United Arab Emirates,Émirats arabes unis,Méditerranée orientale,Eastern Mediterranean
+ECU,Ecuador,Équateur,Amériques,Americas
+ERI,Eritrea,Érythrée,Afrique,Africa
+USA,United States of America,États-Unis,Amériques,Americas
+ETH,Ethiopia,Éthiopie,Afrique,Africa
+COK,Cook Islands,Îles Cook,Pacifique occidental,Western Pacific
+MHL,Marshall Islands,Îles Marshall,Pacifique occidental,Western Pacific

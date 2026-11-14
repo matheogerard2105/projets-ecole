@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation d'Endémie ISIA4</title>
+    <link href="style.css" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.2.0/svg.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="main-container">
+        <h1>Simulation d'Endémie - Modèle de Markov</h1>
+        
+        <div id="dashboard">
+            <aside id="left-panel">
+                <div id="controls-container">
+                    </div>
+            </aside>
+
+            <main id="right-panel">
+                <div class="card">
+                    <h3>Visualisation Spatiale</h3>
+                    <div id="simulation-grid"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>Évolution Temporelle $I_n$</h3>
+                    <div id="chart-wrapper">
+                        <canvas id="simulationChart"></canvas>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="project-description">
+            <h2>Description du Projet</h2>
+            
+            <h3>1. Le Modèle Markovien (Stochastique)</h3>
+            <p>
+                Ce simulateur traite l'évolution de l'infection $(I_n)_{n \in \mathbb{N}}$ comme une <strong>chaîne de Markov homogène à temps discret</strong>. 
+                L'espace d'états est défini par le nombre d'individus infectés : $E = \{0, 1, \dots, N\}$.
+            </p>
+            <ul>
+                <li><strong>Hypothèse de base :</strong> La maladie est de courte durée. Un individu infecté à l'instant $n$ devient sain à l'instant $n+1$.</li>
+                <li><strong>Absence d'immunité :</strong> Un individu peut être infecté plusieurs fois au cours de la simulation.</li>
+                <li><strong>Mécanisme de contagion :</strong> La probabilité qu'un individu sain reste sain est $q^{I_n}$. À l'inverse, sa probabilité d'infection est $1 - q^{I_n}$, où $q = 1 - p$ représente la probabilité de non-contact infectieux.</li>
+                <li><strong>État Absorbant :</strong> L'état $0$ (extinction de la maladie) est un état absorbant. Une fois atteint, la maladie ne peut plus réapparaître car $1 - q^0 = 0$.</li>
+            </ul>
+
+            <h3>2. Le Modèle Déterministe et Transition de Phase</h3>
+            <p>
+                Parallèlement au modèle aléatoire, nous étudions une version déterministe régie par l'itération $x_{n+1} = g(x_n)$ avec :
+                $$g(x) = (1-x)(1-e^{-Ax})$$
+                Ce modèle permet de mettre en évidence une <strong>transition de phase</strong> critique :
+            </p>
+            
+            <ul>
+                <li><strong>Seuil Critique :</strong> Il existe une taille de population critique $N_0(q)$. 
+                    Si $N \le N_0(q)$ (soit $A \le 1$), l'infection s'éteint systématiquement vers 0. 
+                    Si $N > N_0(q)$ (soit $A > 1$), l'infection devient <strong>endémique</strong> et converge vers un point fixe stable $x^* \in ]0, 1/2[$.</li>
+                <li><strong>But de la simulation :</strong> Comparer ces deux approches. Dans le modèle markovien, même au-dessus du seuil, une extinction accidentelle reste possible par fluctuation stochastique, bien que le système tende à osciller autour de la valeur d'équilibre déterministe.</li>
+            </ul>
+        </div>
+
+        <div id="footer-container">
+            <p id="version">Projet ISIA4 - Modèle fondé sur les probabilités de transition $p_{i,j}$</p>
+            <p class="authors">Auteurs : <strong>HANI Nabil</strong> & <strong>GERARD Mathéo</strong></p>
+        </div>
+    </div>
+    <script src="endemie.js"></script>
+</body>
+</html>

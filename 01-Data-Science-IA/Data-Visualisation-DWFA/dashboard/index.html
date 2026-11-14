@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DWFA · Accès à l'eau potable</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<style>
+/* Mise en page : bandeau titre, onglets = points de l'histoire (Monde > Continent > Pays), barre de filtres
+   collante, puis grille de cartes. Palette « Bleu » imposée par DWFA : un seul ton, du clair au profond. */
+:root {
+  --bg: #eef4f9;
+  --surface: #ffffff;
+  --surface-2: #f6f9fc;
+  --ink: #0b2236;
+  --ink-2: #3d566c;
+  --muted: #5f7488;
+  --line: #d3e0eb;
+  --accent: #1c5cab;
+  --accent-ink: #ffffff;
+  --focus: #0d6efd;
+  --hatch: #c9d3dc;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #08131d; --surface: #0f1e2b; --surface-2: #132636; --ink: #e8f1f8; --ink-2: #b2c4d3;
+    --muted: #8ea4b6; --line: #22394c; --accent: #6da7ec; --accent-ink: #08131d; --focus: #9ec5f4;
+    --hatch: #2b3d4d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #08131d; --surface: #0f1e2b; --surface-2: #132636; --ink: #e8f1f8; --ink-2: #b2c4d3;
+  --muted: #8ea4b6; --line: #22394c; --accent: #6da7ec; --accent-ink: #08131d; --focus: #9ec5f4;
+  --hatch: #2b3d4d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 0 48px; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 16px; top: 8px; background: var(--surface); padding: 8px 12px; z-index: 50; }
+
+header.top { padding-block: 28px 14px; display: grid; gap: 6px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.1; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 75ch; margin: 0; }
+
+nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-top: 10px; overflow-x: auto; }
+nav.tabs button { font: inherit; font-weight: 600; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--ink-2);
+  padding: 10px 16px 9px; cursor: pointer; white-space: nowrap; display: flex; gap: 8px; align-items: baseline; }
+nav.tabs button .step { font-size: 12px; color: var(--muted); font-weight: 500; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+nav.tabs button:hover { color: var(--ink); }
+
+.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); padding-block: 12px;
+  display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: end; border-bottom: 1px solid var(--line); }
+.f { display: grid; gap: 3px; min-width: 0; }
+.f label, .f .lab { font-size: 12px; font-weight: 600; color: var(--ink-2); letter-spacing: .02em; }
+.f output { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 700; }
+.f select { font: inherit; padding: 6px 30px 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); max-width: 260px; }
+.f input[type=range] { width: 190px; accent-color: var(--accent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 14px; border: 0; background: none; color: var(--ink-2); padding: 6px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.f .hint { font-size: 12px; color: var(--muted); }
+.f[data-for]:not(.on) { display: none; }
+
+.view { display: grid; gap: 18px; padding-top: 18px; }
+.insight { font-family: var(--font-display); font-size: clamp(18px, 2vw, 22px); line-height: 1.35; margin: 0; max-width: 85ch; text-wrap: pretty; }
+.insight b { font-weight: 600; color: var(--accent); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.kpi .k { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+.kpi .v { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; line-height: 1.15; }
+.kpi .s { font-size: 12px; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; min-width: 0; display: grid; gap: 4px; align-content: start; }
+.card h2 { font-size: 15px; margin: 0; font-weight: 700; }
+.card h2 .dom { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-right: 6px; }
+.card .sub { font-size: 13px; color: var(--muted); margin: 0; }
+.c12 { grid-column: span 12; } .c8 { grid-column: span 8; } .c7 { grid-column: span 7; } .c6 { grid-column: span 6; }
+.c5 { grid-column: span 5; } .c4 { grid-column: span 4; }
+@media (max-width: 1000px) { .c8, .c7, .c6, .c5, .c4 { grid-column: span 12; } }
+.plot { width: 100%; height: 320px; }
+.plot.tall { height: 380px; }
+.stack { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.section-title { font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 8px 0 0; }
+
+.map-wrap { position: relative; }
+svg.map { width: 100%; height: auto; display: block; }
+svg.map path, svg.map circle { stroke: var(--surface); stroke-width: .5; vector-effect: non-scaling-stroke; cursor: pointer; }
+svg.map .out { opacity: .25; }
+svg.map .sel { stroke: var(--ink); stroke-width: 2; }
+svg.map path:hover, svg.map circle:hover { stroke: var(--ink); stroke-width: 1.5; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); align-items: center; }
+.legend .sw { display: inline-block; width: 14px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
+.tip { position: fixed; pointer-events: none; z-index: 60; background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 10px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,.15); max-width: 260px; }
+.tip b { display: block; margin-bottom: 2px; }
+.tip span { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+details.data { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; }
+details.data summary { cursor: pointer; font-weight: 600; }
+.tbl { overflow-x: auto; max-height: 420px; margin-top: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { position: sticky; top: 0; background: var(--surface-2); color: var(--ink-2); font-weight: 600; }
+.note { font-size: 12px; color: var(--muted); }
+footer { margin-top: 28px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
+.warn { font-size: 13px; color: var(--ink); background: var(--surface-2); border: 1px dashed var(--line); padding: 8px 12px; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<a class="skip" href="#contenu">Aller au contenu</a>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Drinking Water For All · étude d'accès à l'eau potable</div>
+    <h1>Où concentrer les efforts de DWFA ?</h1>
+    <p class="lede">Trois vues emboîtées, du monde au pays, pour repérer les pays en difficulté et ceux où chacun de nos trois domaines d'expertise
+      (création de services, modernisation, consulting) aurait le plus d'impact. Sources : OMS/UNICEF JMP, FAO, Banque mondiale, 2000-2017.</p>
+    <nav class="tabs" role="tablist" aria-label="Vues du tableau de bord">
+      <button role="tab" id="tab-monde" aria-controls="vue-monde" aria-selected="true"><span class="step">1</span>Monde</button>
+      <button role="tab" id="tab-continent" aria-controls="vue-continent" aria-selected="false" tabindex="-1"><span class="step">2</span>Continent</button>
+      <button role="tab" id="tab-pays" aria-controls="vue-pays" aria-selected="false" tabindex="-1"><span class="step">3</span>Pays</button>
+    </nav>
+  </header>
+
+  <form class="filters" aria-label="Filtres" onsubmit="return false">
+    <div class="f">
+      <label for="f-annee">Année <output id="o-annee" for="f-annee">2017</output></label>
+      <input type="range" id="f-annee" min="2000" max="2017" step="1" value="2017">
+    </div>
+    <div class="f">
+      <span class="lab" id="l-zone">Zone</span>
+      <div class="seg" role="group" aria-labelledby="l-zone" id="f-zone">
+        <button type="button" data-v="T" aria-pressed="true">Total</button>
+        <button type="button" data-v="U" aria-pressed="false">Urbain</button>
+        <button type="button" data-v="R" aria-pressed="false">Rural</button>
+      </div>
+    </div>
+    <div class="f">
+      <label for="f-stab">Stabilité politique minimale <output id="o-stab" for="f-stab"></output></label>
+      <input type="range" id="f-stab" min="-3.5" max="1.5" step="0.1" value="-3.5">
+      <span class="hint" id="h-stab"></span>
+    </div>
+    <div class="f" data-for="continent pays">
+      <label for="f-region">Continent (région OMS)</label>
+      <select id="f-region"></select>
+    </div>
+    <div class="f" data-for="pays">
+      <label for="f-pays">Pays</label>
+      <select id="f-pays"></select>
+    </div>
+  </form>
+
+  <main id="contenu">
+    <section class="view" id="vue-monde" role="tabpanel" aria-labelledby="tab-monde"></section>
+    <section class="view" id="vue-continent" role="tabpanel" aria-labelledby="tab-continent" hidden></section>
+    <section class="view" id="vue-pays" role="tabpanel" aria-labelledby="tab-pays" hidden></section>
+  </main>
+
+  <footer>
+    <div>Agrégats mondiaux et continentaux pondérés par la population. « Accès basique » : point d'eau amélioré à moins de 30 min aller-retour.
+      « Accès sûr » (safely managed) : point d'eau amélioré au domicile, disponible quand nécessaire et exempt de contamination.</div>
+    <div>Mortalité WASH : décès attribuables à une eau, un assainissement et une hygiène insalubres, pour 100 000 habitants (OMS, 2016 seulement).
+      Stabilité politique : indice Banque mondiale de -2,5 (très instable) à +2,5 (très stable).</div>
+  </footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script src="data.js"></script>
+<script src="geo.js"></script>
+<script>
+const Y = D.years, C = D.c;
+const byIso = Object.fromEntries(C.map(c => [c.i, c]));
+const I16 = Y.indexOf(2016);
+const S = { view: "monde", year: 2017, zone: "T", stab: -3.5, region: "Afrique", pays: "MDG" };
+
+/* ---------- formats ---------- */
+const nf = (d) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d });
+const pct = (v, d = 1) => v == null || isNaN(v) ? "n.d." : nf(d).format(v) + " %";
+const num = (v, d = 1) => v == null || isNaN(v) ? "n.d." : nf(d).format(v);
+function people(v) {
+  if (v == null || isNaN(v)) return "n.d.";
+  if (v >= 1e9) return nf(2).format(v / 1e9) + " Md";
+  if (v >= 1e6) return nf(v >= 1e8 ? 0 : 1).format(v / 1e6) + " M";
+  if (v >= 1e3) return nf(0).format(v / 1e3) + " k";
+  return nf(0).format(v);
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+
+/* ---------- thème (palette Bleu, une marche par thème) ---------- */
+function isDark() {
+  const t = document.documentElement.getAttribute("data-theme");
+  if (t) return t === "dark";
+  return matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function P() {
+  const css = getComputedStyle(document.documentElement);
+  const v = (n) => css.getPropertyValue(n).trim();
+  const dark = isDark();
+  return {
+    dark, ink: v("--ink"), ink2: v("--ink-2"), muted: v("--muted"), line: v("--line"), surface: v("--surface"), hatch: v("--hatch"),
+    // séquentiel (carte) : clair = faible accès, profond = accès quasi universel
+    seq: dark ? ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95"]
+              : ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#1c5cab", "#0d366b"],
+    total: dark ? "#6da7ec" : "#1c5cab",
+    urb: dark ? "#b7d3f6" : "#0d366b",
+    rur: dark ? "#3987e5" : "#5598e7",
+    safe: dark ? "#b7d3f6" : "#104281",
+    basic: dark ? "#3987e5" : "#5598e7",
+    none: dark ? "#2a4a6b" : "#b7d3f6",
+    pt: dark ? "#6da7ec" : "#2a78d6",
+    ptFaint: dark ? "#2a4a6b" : "#b7d3f6",
+    hi: dark ? "#ffffff" : "#0b2236",
+  };
+}
+
+/* ---------- données ---------- */
+const yi = () => Y.indexOf(S.year);
+const acc = (k) => k + S.zone;                      // bT / bU / bR
+const wKey = () => ({ T: "p", U: "pu", R: "pr" })[S.zone];
+const zoneLabel = () => ({ T: "", U: " (urbain)", R: " (rural)" })[S.zone];
+function kept(c, i = yi()) { const s = c.st[i]; return s == null || s >= S.stab; }
+function wavg(list, f, w) {
+  let a = 0, b = 0;
+  for (const c of list) { const x = f(c), p = w(c); if (x != null && p != null) { a += x * p; b += p; } }
+  return b ? a / b : null;
+}
+function cover(list, f, i) { // part de la population couverte par l'indicateur
+  let a = 0, b = 0;
+  for (const c of list) { const p = c.p[i]; if (p == null) continue; b += p; if (f(c) != null) a += p; }
+  return b ? a / b * 100 : 0;
+}
+function aggregate(list, i) {
+  const pop = list.reduce((s, c) => s + (c.p[i] || 0), 0);
+  const pu = list.reduce((s, c) => s + (c.pu[i] || 0), 0);
+  const basic = wavg(list, (c) => c["b" + S.zone][i], (c) => c[wKey()][i]);
+  const safe = wavg(list, (c) => c["s" + S.zone][i], (c) => c[wKey()][i]);
+  const without = list.reduce((s, c) => s + (c.bT[i] != null && c.p[i] != null ? c.p[i] * (100 - c.bT[i]) / 100 : 0), 0);
+  const deaths = list.reduce((s, c) => s + (c.dw || 0), 0);
+  const pop16 = list.reduce((s, c) => s + (c.dw != null ? c.p[I16] || 0 : 0), 0);
+  const st = list.map((c) => c.st[i]).filter((v) => v != null);
+  return { n: list.length, pop, urb: pop ? pu / pop * 100 : null, basic, safe, without, deaths,
+    mort: pop16 ? deaths / pop16 * 1e5 : null, stab: st.length ? st.reduce((a, b) => a + b, 0) / st.length : null,
+    safeCov: cover(list, (c) => c["s" + S.zone][i], i) };
+}
+const scopeList = (scope) => C.filter((c) => (scope === "monde" || c.r === S.region));
+
+/* ---------- plotly commun ---------- */
+const CFG = { displayModeBar: false, responsive: true, locale: "fr" };
+function base(p, extra = {}) {
+  return Object.assign({
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: getComputedStyle(document.body).fontFamily, size: 12, color: p.ink2 },
+    margin: { l: 52, r: 16, t: 10, b: 44 }, separators: ", ",
+    hoverlabel: { bgcolor: p.surface, bordercolor: p.line, font: { color: p.ink, size: 12 } },
+    legend: { orientation: "h", x: 0, y: 1.12, font: { color: p.ink2 } },
+  }, extra);
+}
+const ax = (p, title, extra = {}) => Object.assign({ title: { text: title, font: { size: 12, color: p.ink2 } }, gridcolor: p.line,
+  zerolinecolor: p.line, linecolor: p.line, tickfont: { color: p.ink2 }, automargin: true }, extra);
+function draw(id, traces, layout) { const el = document.getElementById(id); if (el) Plotly.react(el, traces, layout, CFG); }
+
+/* ---------- graphiques ---------- */
+function lineChart(id, list, p, title) {
+  const keys = [["bT", "Accès basique · total", p.total, "solid"], ["bU", "Accès basique · urbain", p.urb, "dash"],
+                ["bR", "Accès basique · rural", p.rur, "dot"], ["sT", "Accès sûr · total", p.total, "longdashdot"]];
+  const single = list.length === 1;
+  const traces = keys.map(([k, name, color, dash]) => {
+    const w = { b: { T: "p", U: "pu", R: "pr" }, s: { T: "p", U: "pu", R: "pr" } }[k[0]][k[1]];
+    // "sûr" : panel constant (pays renseignés toutes les années) pour éviter les sauts dus à la couverture
+    const panel = k === "sT" ? list.filter((c) => c.sT.every((v) => v != null)) : list;
+    const yv = Y.map((_, i) => single ? list[0][k][i] : wavg(panel.filter((c) => kept(c, i)), (c) => c[k][i], (c) => c[w][i]));
+    return { x: Y, y: yv, name, type: "scatter", mode: "lines", connectgaps: false,
+      line: { color, width: k === "sT" ? 2 : 2.5, dash }, hovertemplate: "%{y:.1f} %<extra>" + name + "</extra>" };
+  });
+  draw(id, traces, base(p, { hovermode: "x unified", xaxis: ax(p, "", { dtick: 2 }), yaxis: ax(p, "% de la population", { ticksuffix: " %" }),
+    shapes: [{ type: "line", x0: S.year, x1: S.year, yref: "paper", y0: 0, y1: 1, line: { color: p.muted, width: 1, dash: "dot" } }],
+    legend: { orientation: "h", x: 0, y: 1.18, font: { color: p.ink2 } }, margin: { l: 52, r: 16, t: 36, b: 30 } }));
+}
+
+function ladder(id, rows, p, horizontal) { // percent stacked : sûr / basique non sûr / sans basique
+  const lab = rows.map((r) => r.label);
+  const segs = [["safe", "Accès sûr", p.safe], ["basic", "Basique, non sûr", p.basic], ["none", "Sans accès basique", p.none]];
+  const traces = segs.map(([k, name, color]) => {
+    const v = rows.map((r) => r[k]);
+    const t = { type: "bar", name, marker: { color, line: { color: p.surface, width: 1.5 } },
+      hovertemplate: "%{" + (horizontal ? "y" : "x") + "}<br>" + name + " : %{" + (horizontal ? "x" : "y") + ":.1f} %<extra></extra>",
+      text: v.map((x) => x != null && x >= 9 ? nf(0).format(x) : ""), textposition: "inside", insidetextanchor: "middle",
+      textfont: { color: k === "none" ? p.ink : (p.dark ? "#08131d" : "#ffffff"), size: 11 } };
+    if (horizontal) { t.y = lab; t.x = v; t.orientation = "h"; } else { t.x = lab; t.y = v; }
+    return t;
+  });
+  const L = base(p, { barmode: "stack", bargap: 0.25, margin: { l: horizontal ? 10 : 46, r: 12, t: 48, b: horizontal ? 36 : 70 } });
+  if (horizontal) { L.xaxis = ax(p, "% de la population", { range: [0, 100], ticksuffix: " %" }); L.yaxis = ax(p, "", { autorange: "reversed" }); }
+  else { L.yaxis = ax(p, "", { range: [0, 100], ticksuffix: " %" }); L.xaxis = ax(p, "", { tickangle: -25 }); }
+  L.legend = { orientation: "h", x: 0, y: 1.02, yanchor: "bottom", traceorder: "normal", font: { color: p.ink2 } };
+  draw(id, traces, L);
+}
+
+function grouped(id, labels, series, p, opts = {}) {
+  const traces = series.map((s) => ({ type: "bar", name: s.name, x: opts.h ? s.v : labels, y: opts.h ? labels : s.v, orientation: opts.h ? "h" : "v",
+    marker: { color: s.color, line: { color: p.surface, width: 1.5 } }, hovertemplate: "%{" + (opts.h ? "y" : "x") + "}<br>" + s.name + " : %{" + (opts.h ? "x" : "y") + ":.1f}" + (opts.unit || "") + "<extra></extra>" }));
+  const L = base(p, { barmode: "group", bargap: 0.28, bargroupgap: 0.08, margin: { l: opts.h ? 10 : 46, r: 12, t: 30, b: opts.h ? 36 : 70 },
+    legend: { orientation: "h", x: 0, y: 1.1, font: { color: p.ink2 } } });
+  const valAx = ax(p, opts.ytitle || "", { ticksuffix: opts.unit || "", range: opts.range });
+  const catAx = ax(p, "", opts.h ? { autorange: "reversed" } : { tickangle: -25 });
+  if (opts.h) { L.xaxis = valAx; L.yaxis = catAx; } else { L.yaxis = valAx; L.xaxis = catAx; }
+  draw(id, traces, L);
+}
+
+/* Les trois nuages de points des domaines d'expertise */
+function domainScatter(id, dom, list, p, highlight) {
+  const i = dom === 3 ? I16 : yi();
+  const pts = list.filter((c) => kept(c, i)).map((c) => {
+    if (dom === 1) return { c, x: c.u[i], y: c.bT[i], s: c.p[i] != null && c.bT[i] != null ? c.p[i] * (100 - c.bT[i]) / 100 : null };
+    if (dom === 2) return { c, x: c.bT[i], y: c.sT[i] };
+    return { c, x: c.st[I16], y: c.sc };
+  }).filter((d) => d.x != null && d.y != null);
+  const ctx = highlight ? pts.filter((d) => d.c.i !== highlight) : pts;
+  const hi = highlight ? pts.filter((d) => d.c.i === highlight) : [];
+  const fmt = {
+    1: (d) => `<b>${esc(d.c.n)}</b><br>Urbanisation : ${pct(d.x)}<br>Accès basique : ${pct(d.y)}<br>Sans accès basique : ${people(d.s)}`,
+    2: (d) => `<b>${esc(d.c.n)}</b><br>Accès basique : ${pct(d.x)}<br>Accès sûr : ${pct(d.y)}<br>Écart : ${num(d.x - d.y)} pts`,
+    3: (d) => `<b>${esc(d.c.n)}</b><br>Stabilité 2016 : ${num(d.x, 2)}<br>Score d'efficacité : ${num(d.y, 0)} / 100<br>Mortalité WASH : ${num(d.c.m)} /100 000`,
+  }[dom];
+  const maxS = Math.max(1, ...pts.map((d) => d.s || 0));
+  const size = (d) => dom === 1 ? 7 + 26 * Math.sqrt((d.s || 0) / maxS) : 9;
+  const traces = [{
+    type: "scatter", mode: "markers", x: ctx.map((d) => d.x), y: ctx.map((d) => d.y), name: highlight ? "Autres pays du continent" : "Pays",
+    text: ctx.map(fmt), hovertemplate: "%{text}<extra></extra>", customdata: ctx.map((d) => d.c.i),
+    marker: { size: ctx.map(size), color: highlight ? p.ptFaint : p.pt, opacity: highlight ? 0.9 : 0.72, line: { color: p.surface, width: 1.5 } },
+  }];
+  if (hi.length) traces.push({ type: "scatter", mode: "markers+text", x: hi.map((d) => d.x), y: hi.map((d) => d.y), name: hi[0].c.n,
+    text: hi.map((d) => d.c.n), textposition: "top center", textfont: { color: p.ink, size: 13 }, hovertext: hi.map(fmt), hovertemplate: "%{hovertext}<extra></extra>",
+    marker: { size: hi.map((d) => Math.max(14, size(d))), color: p.hi, line: { color: p.surface, width: 2 } } });
+  // repères de lecture
+  const shapes = [], ann = [];
+  const lab = (x, y, t, xa = "center", ya = "middle") => ann.push({ x, y, xref: "paper", yref: "paper", text: t, showarrow: false, xanchor: xa, yanchor: ya, font: { size: 11, color: p.muted } });
+  let xa, ya, targets = [];
+  if (dom === 1) {
+    xa = ax(p, "Taux d'urbanisation", { ticksuffix: " %", range: [0, 102] }); ya = ax(p, "Accès basique", { ticksuffix: " %" });
+    lab(0.01, 0.02, "Accès faible et rural : créer", "left", "bottom");
+    targets = pts.slice().sort((a, b) => a.y - b.y).slice(0, 4);
+  } else if (dom === 2) {
+    xa = ax(p, "Accès basique", { ticksuffix: " %" }); ya = ax(p, "Accès sûr (safely managed)", { ticksuffix: " %", range: [0, 102] });
+    shapes.push({ type: "line", x0: 0, y0: 0, x1: 100, y1: 100, line: { color: p.muted, width: 1, dash: "dot" } });
+    lab(0.99, 0.02, "Basique sans qualité : moderniser", "right", "bottom");
+    targets = pts.filter((d) => d.x >= 80).sort((a, b) => (b.x - b.y) - (a.x - a.y)).slice(0, 4);
+  } else {
+    xa = ax(p, "Stabilité politique (2016)", { range: [-3.2, 2] }); ya = ax(p, "Score d'efficacité de la politique de l'eau", { range: [0, 103] });
+    shapes.push({ type: "line", x0: 0, x1: 0, yref: "paper", y0: 0, y1: 1, line: { color: p.muted, width: 1, dash: "dot" } });
+    shapes.push({ type: "line", xref: "paper", x0: 0, x1: 1, y0: 60, y1: 60, line: { color: p.muted, width: 1, dash: "dot" } });
+    lab(0.99, 0.02, "Stable, peu efficace : conseiller", "right", "bottom");
+    targets = pts.filter((d) => d.x > 0).sort((a, b) => a.y - b.y).slice(0, 3);
+  }
+  if (!highlight && pts.length > 6) targets.forEach((d, k) =>
+    ann.push({ x: d.x, y: d.y, text: d.c.n, showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: p.muted, ax: k % 2 ? -34 : 30, ay: -16 - 12 * k, font: { size: 11, color: p.ink }, bgcolor: p.surface, borderpad: 1 }));
+  draw(id, traces, base(p, { xaxis: xa, yaxis: ya, shapes, annotations: ann, showlegend: !!highlight, hovermode: "closest", margin: { l: 52, r: 16, t: highlight ? 30 : 10, b: 44 } }));
+  const el = document.getElementById(id);
+  el.removeAllListeners && el.removeAllListeners("plotly_click");
+  el.on && el.on("plotly_click", (e) => { const iso = e.points[0].customdata; if (iso) goCountry(iso); });
+}
+
+/* ---------- carte (SVG, projection Natural Earth précalculée) ---------- */
+const BINS = [50, 70, 85, 95, 99];
+const BIN_LAB = ["< 50 %", "50-70 %", "70-85 %", "85-95 %", "95-99 %", "≥ 99 %"];
+function binOf(v) { let k = 0; while (k < BINS.length && v >= BINS[k]) k++; return k; }
+function mapSVG(holder, p, opts) {
+  const i = yi(), key = acc("b");
+  const W = G._meta.w, H = G._meta.h;
+  let vb = [0, 0, W, H];
+  if (opts.focus) {
+    const isos = opts.focus;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const iso of isos) { const g = G[iso]; if (!g || (iso === "RUS" && isos.length > 1) || (iso === "USA" && isos.length > 1 && S.region === "Amériques" && false)) continue;
+      x0 = Math.min(x0, g.bb[0]); y0 = Math.min(y0, g.bb[1]); x1 = Math.max(x1, g.bb[2]); y1 = Math.max(y1, g.bb[3]); }
+    const pad = opts.pad || 20; x0 -= pad; y0 -= pad; x1 += pad; y1 += pad;
+    const minW = opts.minW || 160; if (x1 - x0 < minW) { const c = (x0 + x1) / 2; x0 = c - minW / 2; x1 = c + minW / 2; }
+    const minH = (x1 - x0) * 0.5; if (y1 - y0 < minH) { const c = (y0 + y1) / 2; y0 = c - minH / 2; y1 = c + minH / 2; }
+    vb = [x0, y0, x1 - x0, y1 - y0];
+  }
+  let s = `<svg class="map" viewBox="${vb.map((v) => v.toFixed(1)).join(" ")}" role="img" aria-label="${esc(opts.label)}"><defs><pattern id="hatch-${holder.id}" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="${p.surface}"/><line x1="0" y1="0" x2="0" y2="5" stroke="${p.hatch}" stroke-width="2.5"/></pattern></defs>`;
+  const r = Math.max(1.6, vb[2] / 260);
+  for (const iso in G) {
+    if (iso === "_meta") continue;
+    const g = G[iso], c = byIso[iso];
+    let fill = p.hatch, cls = "";
+    if (c) {
+      const v = c[key][i];
+      fill = !kept(c) ? `url(#hatch-${holder.id})` : v == null ? p.hatch : p.seq[binOf(v)];
+      if (opts.dimOutside && c.r !== S.region) cls = "out";
+      if (opts.sel === iso) cls += " sel";
+    }
+    const attrs = `fill="${fill}" class="${cls}" data-iso="${iso}"`;
+    s += g.d ? `<path d="${g.d}" ${attrs}/>` : `<circle cx="${g.c[0]}" cy="${g.c[1]}" r="${r}" ${attrs}/>`;
+  }
+  s += "</svg>";
+  const leg = `<div class="legend" aria-hidden="true"><span>Accès basique${zoneLabel()} ${S.year} :</span>` +
+    BIN_LAB.map((t, k) => `<span><i class="sw" style="background:${p.seq[k]}"></i>${t}</span>`).join("") +
+    `<span><i class="sw" style="background:${p.hatch}"></i>n.d.</span><span><i class="sw" style="background:repeating-linear-gradient(45deg,${p.hatch} 0 2px,${p.surface} 2px 4px)"></i>exclu (stabilité)</span></div>`;
+  holder.innerHTML = s + leg;
+  const tip = document.getElementById("tip");
+  holder.querySelectorAll("[data-iso]").forEach((el) => {
+    const c = byIso[el.dataset.iso];
+    if (!c) return;
+    el.addEventListener("mousemove", (e) => {
+      tip.innerHTML = `<b>${esc(c.n)}</b><span>Accès basique${zoneLabel()} : ${pct(c[key][i])}<br>Accès sûr${zoneLabel()} : ${pct(c[acc("s")][i])}<br>Stabilité : ${num(c.st[i], 2)}${kept(c) ? "" : " (exclu)"}<br>Population : ${people(c.p[i])}</span>`;
+      tip.hidden = false;
+      const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8), y = Math.min(e.clientY + 14, innerHeight - tip.offsetHeight - 8);
+      tip.style.left = x + "px"; tip.style.top = y + "px";
+    });
+    el.addEventListener("mouseleave", () => (tip.hidden = true));
+    el.addEventListener("click", () => { tip.hidden = true; goCountry(c.i); });
+  });
+}
+
+/* ---------- briques HTML ---------- */
+function kpis(a, extra = []) {
+  const tiles = [
+    ["Population " + S.year, people(a.pop), a.n > 1 ? `${a.n} pays retenus` : "habitants"],
+    ["Accès basique" + zoneLabel(), pct(a.basic), "au moins un point d'eau amélioré"],
+    ["Accès sûr" + zoneLabel(), pct(a.safe), a.n > 1 ? `données pour ${nf(0).format(a.safeCov)} % de la population` : "eau gérée en toute sécurité"],
+    ["Sans accès basique", people(a.without), "personnes (total)"],
+    ["Mortalité WASH 2016", num(a.mort), `pour 100 000 hab. · ${people(a.deaths)} décès`],
+    ["Taux d'urbanisation", pct(a.urb), "population vivant en ville"],
+    ["Stabilité politique", num(a.stab, 2), a.n > 1 ? "moyenne des pays, de -2,5 à +2,5" : "indice de -2,5 à +2,5"],
+  ].concat(extra);
+  return `<div class="kpis" role="list">${tiles.map(([k, v, s]) => `<div class="kpi" role="listitem"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span></div>`).join("")}</div>`;
+}
+const card = (cls, id, title, sub, dom, tall) => `<div class="card ${cls}"><h2>${dom ? `<span class="dom">${dom}</span>` : ""}${title}</h2>${sub ? `<p class="sub">${sub}</p>` : ""}<div class="plot${tall ? " tall" : ""}" id="${id}" role="img" aria-label="${esc(title)}"></div></div>`;
+const domainCards = (v) => `<h2 class="section-title">Les trois domaines d'expertise</h2><div class="grid">
+  ${card("c4", "d1-" + v, "Accès basique et urbanisation", "Taille du point : personnes sans accès basique. Clic : fiche pays.", "Domaine 1 · création", true)}
+  ${card("c4", "d2-" + v, "Accès basique et accès sûr", "Sous la diagonale : écart de qualité à combler.", "Domaine 2 · modernisation", true)}
+  ${card("c4", "d3-" + v, "Efficacité et stabilité politique", "Score 0-100, 2016 : accès basique (50 %) + faible mortalité WASH, échelle log (50 %), chacun normalisé.", "Domaine 3 · consulting", true)}
+</div>`;
+function table(headers, rows) {
+  return `<details class="data"><summary>Voir les données sous forme de tableau</summary><div class="tbl"><table><thead><tr>${headers.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((x, k) => k ? `<td>${x}</td>` : `<th scope="row">${x}</th>`).join("")}</tr>`).join("")}</tbody></table></div></details>`;
+}
+const countryRow = (c, i) => [esc(c.n), people(c.p[i]), pct(c.u[i]), pct(c[acc("b")][i]), pct(c[acc("s")][i]), people(c.bT[i] != null && c.p[i] != null ? c.p[i] * (100 - c.bT[i]) / 100 : null), num(c.m), num(c.st[i], 2), num(c.sc, 0)];
+const countryHead = ["Pays", "Population", "Urbanisation", "Accès basique" + zoneLabel(), "Accès sûr" + zoneLabel(), "Sans accès basique", "Mortalité 2016", "Stabilité", "Score efficacité"];
+
+/* ---------- vue 1 : monde ---------- */
+function renderMonde() {
+  const p = P(), i = yi();
+  const all = C.filter((c) => kept(c));
+  const a = aggregate(all, i);
+  const regs = D.regions.map((r) => ({ r, list: all.filter((c) => c.r === r) })).map((o) => ({ ...o, a: aggregate(o.list, i) }));
+  const worst = regs.slice().sort((x, y) => y.a.without - x.a.without)[0];
+  const el = document.getElementById("vue-monde");
+  el.innerHTML = `<p class="insight">En ${S.year}, <b>${people(a.without)} de personnes</b> n'ont pas accès à un service d'eau potable de base, dont
+    <b>${nf(0).format(worst.a.without / a.without * 100)} %</b> en ${worst.r}. En 2016, l'eau insalubre a causé <b>${people(a.deaths)} décès</b>.</p>
+    ${kpis(a)}
+    <div class="grid">
+      <div class="card c8"><h2>Accès basique à l'eau potable${zoneLabel()}, ${S.year}</h2><p class="sub">Survoler pour le détail, cliquer pour ouvrir la fiche pays.</p><div class="map-wrap" id="map-monde"></div></div>
+      ${card("c4", "sans-monde", "Personnes sans accès basique", "Par continent, " + S.year)}
+      ${card("c6", "line-monde", "Évolution de l'accès à l'eau, 2000-2017", "Moyennes mondiales pondérées par la population ; « sûr » calculé sur les pays renseignés chaque année.")}
+      ${card("c6", "stack-monde", "Échelle de service par continent", "Répartition de la population, " + S.year + " (pays avec données « sûr » uniquement).")}
+      ${card("c12", "group-monde", "Écart ville / campagne par continent", "Accès basique, " + S.year + ".")}
+    </div>
+    ${domainCards("monde")}
+    ${table(["Continent", "Pays", "Population", "Urbanisation", "Accès basique" + zoneLabel(), "Accès sûr" + zoneLabel(), "Sans accès basique", "Mortalité 2016", "Stabilité moy."],
+      regs.map((o) => [o.r, o.a.n, people(o.a.pop), pct(o.a.urb), pct(o.a.basic), pct(o.a.safe), people(o.a.without), num(o.a.mort), num(o.a.stab, 2)]))}`;
+  mapSVG(document.getElementById("map-monde"), p, { label: "Carte du monde de l'accès basique à l'eau potable en " + S.year });
+  const sorted = regs.slice().sort((x, y) => y.a.without - x.a.without);
+  draw("sans-monde", [{ type: "bar", orientation: "h", y: sorted.map((o) => o.r), x: sorted.map((o) => o.a.without / 1e6), marker: { color: p.total },
+    text: sorted.map((o) => people(o.a.without)), textposition: "outside", cliponaxis: false, textfont: { color: p.ink2 }, hovertemplate: "%{y} : %{x:.0f} M<extra></extra>" }],
+    base(p, { margin: { l: 10, r: 50, t: 6, b: 36 }, xaxis: ax(p, "millions de personnes"), yaxis: ax(p, "", { autorange: "reversed" }), showlegend: false }));
+  lineChart("line-monde", all, p);
+  ladder("stack-monde", regs.map((o) => {
+    const l = o.list.filter((c) => c.sT[i] != null && c.bT[i] != null);
+    const b = wavg(l, (c) => c.bT[i], (c) => c.p[i]), sf = wavg(l, (c) => c.sT[i], (c) => c.p[i]);
+    return { label: o.r, safe: sf, basic: b - sf, none: 100 - b };
+  }), p, false);
+  grouped("group-monde", regs.map((o) => o.r), [
+    { name: "Urbain", color: p.urb, v: regs.map((o) => wavg(o.list, (c) => c.bU[i], (c) => c.pu[i])) },
+    { name: "Rural", color: p.rur, v: regs.map((o) => wavg(o.list, (c) => c.bR[i], (c) => c.pr[i])) }], p, { unit: " %", range: [0, 100], ytitle: "Accès basique" });
+  for (const d of [1, 2, 3]) domainScatter(`d${d}-monde`, d, C, p);
+}
+
+/* ---------- vue 2 : continent ---------- */
+function renderContinent() {
+  const p = P(), i = yi();
+  const inReg = C.filter((c) => c.r === S.region), list = inReg.filter((c) => kept(c));
+  const a = aggregate(list, i), w = aggregate(C.filter((c) => kept(c)), i);
+  const low = list.filter((c) => c.bT[i] != null).sort((x, y) => x[acc("b")][i] - y[acc("b")][i]).filter((c) => c[acc("b")][i] != null).slice(0, 15);
+  const el = document.getElementById("vue-continent");
+  const ex = inReg.length - list.length;
+  el.innerHTML = `<p class="insight">${S.region} : accès basique de <b>${pct(a.basic)}</b>${zoneLabel()} en ${S.year} (monde : ${pct(w.basic)}),
+    <b>${people(a.without)} de personnes</b> sans service de base. ${low.length ? `Pays le plus en retard : <b>${esc(low[0].n)}</b> (${pct(low[0][acc("b")][i])}).` : ""}</p>
+    ${ex ? `<p class="warn">${ex} pays du continent exclus par le filtre de stabilité politique (seuil ${num(S.stab, 1)}).</p>` : ""}
+    ${kpis(a)}
+    <div class="grid">
+      <div class="card c7"><h2>Accès basique${zoneLabel()} en ${S.region}, ${S.year}</h2><p class="sub">Cliquer sur un pays pour ouvrir sa fiche.</p><div class="map-wrap" id="map-cont"></div></div>
+      <div class="c5 stack">${card("", "line-cont", "Évolution de l'accès à l'eau, 2000-2017", "Moyennes du continent pondérées par la population.")}
+      ${card("", "sans-cont", "Où vivent les personnes sans accès basique", "Les 8 pays du continent qui en comptent le plus, " + S.year + ".")}</div>
+      ${card("c6", "stack-cont", "Échelle de service des 15 pays les moins équipés", S.year + ", accès " + ({ T: "total", U: "urbain", R: "rural" })[S.zone] + ". * accès sûr non renseigné : tout l'accès est compté en basique.", null, true)}
+      ${card("c6", "group-cont", "Ville et campagne dans ces 15 pays", "Accès basique, " + S.year + ".", null, true)}
+    </div>
+    ${domainCards("cont")}
+    ${table(countryHead, list.slice().sort((x, y) => (x[acc("b")][i] ?? 999) - (y[acc("b")][i] ?? 999)).map((c) => countryRow(c, i)))}`;
+  mapSVG(document.getElementById("map-cont"), p, { focus: inReg.map((c) => c.i).filter((iso) => iso !== "RUS" || S.region !== "Europe"), dimOutside: true, pad: 12,
+    label: "Carte de l'accès basique à l'eau en " + S.region });
+  lineChart("line-cont", list, p);
+  const top = list.filter((c) => c.bT[i] != null && c.p[i] != null).map((c) => ({ c, v: c.p[i] * (100 - c.bT[i]) / 100 })).sort((x, y) => y.v - x.v).slice(0, 8);
+  draw("sans-cont", [{ type: "bar", orientation: "h", y: top.map((d) => d.c.n), x: top.map((d) => d.v / 1e6), marker: { color: p.total },
+    text: top.map((d) => people(d.v)), textposition: "outside", cliponaxis: false, textfont: { color: p.ink2 }, customdata: top.map((d) => d.c.i),
+    hovertemplate: "%{y} : %{x:.1f} M<extra></extra>" }],
+    base(p, { margin: { l: 10, r: 56, t: 6, b: 36 }, xaxis: ax(p, "millions de personnes"), yaxis: ax(p, "", { autorange: "reversed" }), showlegend: false }));
+  ladder("stack-cont", low.map((c) => {
+    const b = c[acc("b")][i], sf = c[acc("s")][i];
+    return { label: sf == null ? c.n + " *" : c.n, safe: sf, basic: sf == null ? b : b - sf, none: 100 - b };
+  }), p, true);
+  grouped("group-cont", low.map((c) => c.n), [
+    { name: "Urbain", color: p.urb, v: low.map((c) => c.bU[i]) }, { name: "Rural", color: p.rur, v: low.map((c) => c.bR[i]) }], p, { unit: " %", range: [0, 100], h: true });
+  for (const d of [1, 2, 3]) domainScatter(`d${d}-cont`, d, inReg, p);
+}
+
+/* ---------- vue 3 : pays ---------- */
+function renderPays() {
+  const p = P(), i = yi(), c = byIso[S.pays];
+  const regAll = C.filter((x) => x.r === c.r);
+  const reg = aggregate(regAll.filter((x) => kept(x)), i), w = aggregate(C.filter((x) => kept(x)), i);
+  const a = aggregate([c], i);
+  const rankList = C.filter((x) => x.bT[i] != null).sort((x, y) => x.bT[i] - y.bT[i]);
+  const rank = rankList.findIndex((x) => x.i === c.i) + 1;
+  const el = document.getElementById("vue-pays");
+  el.innerHTML = `<p class="insight"><b>${esc(c.n)}</b> (${c.r}) : accès basique${zoneLabel()} de <b>${pct(c[acc("b")][i])}</b> en ${S.year},
+    accès sûr de <b>${pct(c[acc("s")][i])}</b>. ${rank ? `${rank}<sup>e</sup> pays le moins équipé sur ${rankList.length}.` : ""}
+    Mortalité WASH 2016 : <b>${num(c.m)}</b> pour 100 000 hab. (continent : ${num(reg.mort)}).</p>
+    ${kept(c) ? "" : `<p class="warn">Ce pays est sous le seuil de stabilité politique choisi (${num(c.st[i], 2)} &lt; ${num(S.stab, 1)}) : il serait exclu des vues Monde et Continent.</p>`}
+    ${kpis(a, [["Score d'efficacité 2016", num(c.sc, 0), "sur 100 (domaine 3)"]])}
+    <div class="grid">
+      ${card("c7", "line-pays", "Évolution de l'accès à l'eau, 2000-2017", "Basique (total, urbain, rural) et sûr.")}
+      <div class="card c5"><h2>Situation dans le continent</h2><p class="sub">${esc(c.n)} encadré ; cliquer sur un voisin pour changer de pays.</p><div class="map-wrap" id="map-pays"></div></div>
+      ${card("c6", "group-pays", esc(c.n) + " face au continent et au monde", S.year + ".")}
+      ${card("c6", "pop-pays", "Population urbaine et rurale", "Millions d'habitants, 2000-2017.")}
+      ${card("c12", "stab-pays", "Stabilité politique, 2000-2017", "Indice Banque mondiale ; la ligne pointillée marque le seuil du filtre.")}
+    </div>
+    ${domainCards("pays")}
+    ${table(["Année", "Population", "Urbanisation", "Accès basique", "Basique urbain", "Basique rural", "Accès sûr", "Stabilité"],
+      Y.map((y, k) => [y, people(c.p[k]), pct(c.u[k]), pct(c.bT[k]), pct(c.bU[k]), pct(c.bR[k]), pct(c.sT[k]), num(c.st[k], 2)]).reverse())}`;
+  lineChart("line-pays", [c], p);
+  mapSVG(document.getElementById("map-pays"), p, { focus: [c.i], pad: 60, minW: 260, sel: c.i, label: "Localisation de " + c.n });
+  grouped("group-pays", ["Accès basique", "Accès sûr", "Urbanisation"], [
+    { name: c.n, color: p.urb, v: [c[acc("b")][i], c[acc("s")][i], c.u[i]] },
+    { name: c.r, color: p.rur, v: [reg.basic, reg.safe, reg.urb] },
+    { name: "Monde", color: p.none, v: [w.basic, w.safe, w.urb] }], p, { unit: " %", range: [0, 105] });
+  draw("pop-pays", [
+    { type: "bar", name: "Urbaine", x: Y, y: c.pu.map((v) => v == null ? null : v / 1e6), marker: { color: p.urb, line: { color: p.surface, width: 1 } }, hovertemplate: "%{x} · urbaine : %{y:.2f} M<extra></extra>" },
+    { type: "bar", name: "Rurale", x: Y, y: c.pr.map((v) => v == null ? null : v / 1e6), marker: { color: p.rur, line: { color: p.surface, width: 1 } }, hovertemplate: "%{x} · rurale : %{y:.2f} M<extra></extra>" }],
+    base(p, { barmode: "stack", bargap: 0.2, xaxis: ax(p, "", { dtick: 2 }), yaxis: ax(p, "millions d'habitants"), margin: { l: 52, r: 12, t: 30, b: 30 } }));
+  const regStab = Y.map((_, k) => { const v = regAll.map((x) => x.st[k]).filter((v) => v != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; });
+  draw("stab-pays", [
+    { type: "scatter", mode: "lines+markers", name: c.n, x: Y, y: c.st, line: { color: p.total, width: 2.5 }, marker: { size: 8, color: p.total, line: { color: p.surface, width: 1.5 } }, hovertemplate: "%{x} : %{y:.2f}<extra>" + esc(c.n) + "</extra>" },
+    { type: "scatter", mode: "lines", name: "Moyenne " + c.r, x: Y, y: regStab, line: { color: p.rur, width: 2, dash: "dash" }, hovertemplate: "%{x} : %{y:.2f}<extra>Moyenne " + c.r + "</extra>" }],
+    base(p, { hovermode: "x unified", xaxis: ax(p, "", { dtick: 1 }), yaxis: ax(p, "indice", { range: [-3.4, 2.2], zeroline: true }), margin: { l: 52, r: 12, t: 30, b: 30 },
+      shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: S.stab, y1: S.stab, line: { color: p.muted, width: 1, dash: "dot" } }] }));
+  for (const d of [1, 2, 3]) domainScatter(`d${d}-pays`, d, regAll, p, c.i);
+}
+
+/* ---------- contrôleur ---------- */
+const R = { monde: renderMonde, continent: renderContinent, pays: renderPays };
+function render() {
+  const st = document.getElementById("h-stab");
+  const ex = C.filter((c) => !kept(c)).length;
+  document.getElementById("o-stab").textContent = S.stab <= -3.4 ? "aucune" : num(S.stab, 1);
+  st.textContent = ex ? `${ex} pays exclus en ${S.year}` : "aucun pays exclu";
+  document.getElementById("o-annee").textContent = S.year;
+  document.querySelectorAll(".f[data-for]").forEach((f) => f.classList.toggle("on", f.dataset.for.split(" ").includes(S.view)));
+  R[S.view]();
+}
+function setView(v, focus) {
+  S.view = v;
+  document.querySelectorAll("nav.tabs button").forEach((b) => {
+    const on = b.id === "tab-" + v; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus();
+  });
+  for (const k of Object.keys(R)) document.getElementById("vue-" + k).hidden = k !== v;
+  try { localStorage.setItem("dwfa-vue", v); } catch (e) {}
+  render();
+}
+function fillCountries() {
+  const sel = document.getElementById("f-pays");
+  const list = C.filter((c) => c.r === S.region);
+  if (!list.some((c) => c.i === S.pays)) S.pays = list.slice().sort((a, b) => (a.bT[yi()] ?? 999) - (b.bT[yi()] ?? 999))[0].i;
+  sel.innerHTML = list.map((c) => `<option value="${c.i}"${c.i === S.pays ? " selected" : ""}>${esc(c.n)}</option>`).join("");
+}
+function goCountry(iso) {
+  const c = byIso[iso]; if (!c) return;
+  S.region = c.r; S.pays = iso;
+  document.getElementById("f-region").value = c.r;
+  fillCountries();
+  setView("pays");
+  document.getElementById("vue-pays").scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
+(function init() {
+  const reg = document.getElementById("f-region");
+  reg.innerHTML = D.regions.map((r) => `<option${r === S.region ? " selected" : ""}>${r}</option>`).join("");
+  fillCountries();
+  const tabs = [...document.querySelectorAll("nav.tabs button")];
+  tabs.forEach((b, k) => {
+    b.addEventListener("click", () => setView(b.id.slice(4)));
+    b.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const n = tabs[(k + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]; setView(n.id.slice(4), true);
+    });
+  });
+  let t;
+  const later = () => { clearTimeout(t); t = setTimeout(render, 60); };
+  document.getElementById("f-annee").addEventListener("input", (e) => { S.year = +e.target.value; document.getElementById("o-annee").textContent = S.year; later(); });
+  document.getElementById("f-stab").addEventListener("input", (e) => { S.stab = +e.target.value; later(); });
+  document.querySelectorAll("#f-zone button").forEach((b) => b.addEventListener("click", () => {
+    S.zone = b.dataset.v; document.querySelectorAll("#f-zone button").forEach((x) => x.setAttribute("aria-pressed", x === b)); render();
+  }));
+  reg.addEventListener("change", () => { S.region = reg.value; fillCountries(); render(); });
+  document.getElementById("f-pays").addEventListener("change", (e) => { S.pays = e.target.value; render(); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+  new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  let start = "monde";
+  try { const v = localStorage.getItem("dwfa-vue"); if (v && R[v]) start = v; } catch (e) {}
+  const h = location.hash.slice(1); if (R[h]) start = h;
+  setView(start);
+})();
+</script>
+
+</body></html>

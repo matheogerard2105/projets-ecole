@@ -1,0 +1,57 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #f8f8f8;
+    padding: 20px;
+    color: #333;
+}
+
+#simulation {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 15px;
+    border: 1px solid #ddd;
+}
+
+/* Sliders style "Bleu" comme sur l'image */
+.sliderContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+input[type=range] {
+    width: 200px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+/* Style des labels à droite */
+.sliderContainer label {
+    font-size: 14px;
+}
+
+/* Boutons */
+input[type=button] {
+    background: #efefef;
+    border: 1px solid #767676;
+    border-radius: 2px;
+    padding: 2px 8px;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+input[type=button]:hover {
+    background: #e5e5e5;
+}
+
+#version {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+canvas {
+    margin-top: 20px;
+}

@@ -1,0 +1,22 @@
+uploads/
+*.ics
+lib/
+tests/
+
+vendor/
+composer.*
+
+.DS_Store
+.vscode/
+
+config.php
+temp.*
+generate_test.php
+*phpunit*
+
+
+
+
+
+# Documents de projet (non versionnés)
+Cahier_des_charges.md

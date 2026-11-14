@@ -1,0 +1,437 @@
+.edt-grid-week {
+    display: grid;
+    grid-template-columns: 50px repeat(5, 1fr);
+    /* J'ai ajouté une 1ère ligne de 30px pour afficher les jours de la semaine (Lundi, Mardi...) */
+    grid-template-rows: 30px repeat(48, 15px);
+    gap: 1px;
+    background-color: #f4f4f4; /* Fond gris clair pour faire ressortir les cases */
+    padding: 10px;
+}
+
+.edt-grid-day {
+    display: grid;
+    grid-template-columns: 50px repeat(1, 1fr);
+    /* J'ai ajouté une 1ère ligne de 30px pour afficher les jours de la semaine (Lundi, Mardi...) */
+    grid-template-rows: 30px repeat(48, 15px);
+    gap: 1px;
+    background-color: #f4f4f4; /* Fond gris clair pour faire ressortir les cases */
+    padding: 10px;
+}
+
+/* --- AFFICHAGE DES HEURES SUR LA LIGNE --- */
+.heure {
+    grid-column: 1;
+    text-align: right;
+    padding-right: 8px;
+    font-size: 12px;
+    color: #555;
+    /* Remonte l'heure pour la placer à cheval sur la bordure supérieure de sa ligne */
+    position: relative;
+    top: -8px;
+}
+
+/* --- AFFICHAGE DES JOURS EN HAUT --- */
+.jour {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    grid-row: 1;
+}
+
+/* --- LIGNES DU CADRILLAGE --- */
+.ligne-grille {
+    grid-column: 2 / -1; /* Commence après la colonne des heures (col 1) et va jusqu'à la fin de la grille */
+    pointer-events: none; /* Laisse passer la souris pour que tes Tooltips CSS fonctionnent toujours ! */
+    z-index: 1; /* Se place en fond */
+}
+
+/* Les quarts, demies et trois-quarts d'heure (ligne pointillée discrète) */
+.ligne-grille.quart-heure {
+    border-top: 1px dashed #dcdcdc;
+}
+
+/* L'heure pleine (ligne continue plus marquée) */
+.ligne-grille.heure-pleine {
+    border-top: 1px solid #a9a9a9;
+}
+
+/* --- COLONNES DU CADRILLAGE --- */
+.colonne-grille {
+    grid-row: 1 / -1; /* S'étend de la toute première ligne jusqu'à la dernière */
+    border-left: 1px solid #dcdcdc; /* Trait de séparation à gauche du jour */
+    pointer-events: none; /* Laisse passer la souris pour les infobulles */
+    z-index: 1; /* Reste en fond */
+}
+
+/* S'assurer que le parent est positionné */
+.cours {
+    position: relative;
+    cursor: pointer;
+    border-radius: px;
+    z-index: 10;
+    
+    /* Ajoute ceci pour que l'espacement intérieur ne casse pas ta grille */
+    box-sizing: border-box;
+    padding: 4px;
+    
+    /* ATTENTION : Ne JAMAIS mettre overflow: hidden; ici,
+    sinon ta bulle noire au survol sera masquée ! */
+}
+
+/* --- CONTENEUR DU TEXTE --- */
+.cours-contenu {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Empêche le texte de dépasser verticalement */
+    
+    /* Disposition propre en colonne (remplace le <br>) */
+    display: flex;
+    flex-direction: column;
+    font-size: 12px; /* Réduit un peu la taille pour les petites cases */
+}
+
+/* Style de base de la bulle d'information */
+.cours-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    
+    /* Positionnement au centre et au-dessus du cours */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100; /* Permet de passer par-dessus les autres cours de la grille */
+    
+    /* Design de la bulle */
+    width: max-content;
+    max-width: 250px;
+    color: #000;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.9em;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    
+    /* Animation de transition */
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    margin-bottom: 8px; /* Espace entre la bulle et le cours */
+}
+
+/* La petite flèche esthétique orientée vers le bas */
+.cours-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%; /* S'attache au bas de la bulle */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #2c3e50 transparent transparent transparent;
+}
+
+.cours:hover {
+    z-index: 1000;
+}
+
+/* Déclencheur : affichage au survol */
+.cours:hover .cours-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* --- COULEURS DES TYPES DE COURS --- */
+
+/* CM : Souvent en Violet / Rose */
+.cours-cm {
+    background-color: #f3e8ff;
+    border-left: 4px solid #a855f7;
+}
+
+/* TD : Souvent en Vert */
+.cours-td {
+    background-color: #dcfce7;
+    border-left: 4px solid #22c55e;
+}
+
+/* TP : Souvent en Bleu */
+.cours-tp {
+    background-color: #e0f2fe;
+    border-left: 4px solid #0ea5e9;
+}
+
+/* CMTD / CMTP : Orange / Jaune */
+.cours-cmtd, .cours-cmtp {
+    background-color: #fef3c7;
+    border-left: 4px solid #f59e0b;
+}
+
+/* DS / Examen : Rouge (Alerte) */
+.cours-ds {
+    background-color: #fee2e2;
+    border-left: 4px solid #ef4444;
+}
+
+/* Langues : Magenta / Rose vif */
+.cours-langues {
+    background-color: #fce7f3;
+    border-left: 4px solid #ec4899;
+}
+
+/* Par défaut (si aucun mot clé n'est trouvé) : Gris neutre */
+.cours-default {
+    background-color: #f1f5f9;
+    border-left: 4px solid #94a3b8;
+}
+
+/* --- CONTENEUR GLOBAL --- */
+/* Aligne tous les blocs d'action sur une seule ligne avec un espacement régulier plutôt que de les empiler[cite: 1] */
+.edt-controles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+/* --- STYLE DE BASE DES BOUTONS --- */
+/* Remplace l'apparence grise par défaut[cite: 1] par un design plat et moderne */
+.btn {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Boutons secondaires (Retour, Semaine, Jour, <, >)[cite: 1] */
+.btn-secondaire {
+    background-color: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondaire:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* Bouton d'action principal (Envoyer)[cite: 1] */
+.btn-primaire {
+    background-color: #0ea5e9; /* Bleu cohérent avec tes couleurs de cours TP */
+    color: #ffffff;
+    border-color: #0284c7;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(14, 165, 233, 0.2);
+}
+
+.btn-primaire:hover {
+    background-color: #0284c7;
+}
+
+/* --- GROUPES DE BOUTONS (Pagination) --- */
+/* Colle les flèches < et > aux mots "Semaine" et "Jour"[cite: 1] pour former un bloc uni */
+.btn-groupe {
+    display: flex;
+}
+
+.btn-groupe .btn {
+    border-radius: 0;
+    margin-left: -1px; /* Évite de doubler l'épaisseur de la bordure entre les boutons */
+}
+
+/* Arrondit uniquement les bords extérieurs du groupe */
+.btn-groupe .btn:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding: 8px 12px; /* Un peu moins large pour les flèches */
+}
+
+.btn-groupe .btn:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 8px 12px;
+}
+
+/* --- LISTE DÉROULANTE (Select IS3) --- */
+/* Associe la liste déroulante et le bouton Envoyer[cite: 1] */
+.form-groupe {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Style de la liste déroulante "IS3"[cite: 1] */
+.form-select {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 32px 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.form-select:hover, .form-select:focus {
+    border-color: #0ea5e9;
+}
+
+/* Style pour la liste des groupes dans la case du calendrier */
+.cours-groupes {
+    display: block;
+    font-size: 0.85em; /* Lignes légèrement plus petites que le titre */
+    color: inherit; /* S'adapte à la couleur du type de cours */
+    margin: 4px 0; /* Un peu d'espace avec le titre et le reste */
+    line-height: 1.3;
+    opacity: 0.9; /* Léger contraste pour différencier du titre */
+}
+
+/* Optionnel : cacher les salles/profs dans la case si le bloc groupe prend trop de place */
+/* Cela garde l'interface propre, l'utilisateur verra les détails complets dans le tooltip */
+.cours-contenu span {
+    display: block;
+    font-size: 0.85em;
+}
+
+/* 1 - ALIGNEMENT SUR UNE LIGNE */
+.matiere-ligne {
+    display: flex;
+    flex-wrap: wrap; /* Permet un retour à la ligne naturel si l'écran est trop petit */
+    align-items: center; /* Aligne le texte et le bouton sur le même axe vertical */
+    gap: 5px; /* Espace entre le titre, les groupes et le bouton */
+    margin-top: 4px;
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
+.matiere-titre {
+    font-weight: bold;
+}
+
+.matiere-groupes {
+    color: #444;
+    opacity: 0.9;
+}
+
+/* 2 - CORRECTION DE L'INFO-BULLE COUPÉE */
+/* Les conteneurs parents ne doivent PAS masquer le contenu qui déborde */
+.cours,
+.cours-contenu,
+.cours-groupes-container {
+    overflow: visible !important;
+}
+
+.details-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.btn-details {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.85em;
+    cursor: default;
+    user-select: none;
+    white-space: nowrap; /* Empêche le mot "Détails" de se casser en deux */
+}
+
+.btn-details:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.details-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
+    padding: 8px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    
+    /* Gère la largeur de la bulle pour éviter qu'elle soit trop large ou coupée */
+    white-space: normal; 
+    min-width: 250px;
+    max-width: max-content; 
+    
+    /* Z-index très élevé pour passer au-dessus des cases adjacentes */
+    z-index: 9999;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.details-wrapper:hover .details-content {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    /* On retire la contrainte de positionnement sur le bouton lui-même */
+    .details-wrapper {
+        position: static; 
+    }
+
+    /* La bulle se positionne maintenant par rapport à la case globale (.cours) */
+    .details-content {
+        position: absolute;
+        left: 5%;           /* Laisse une petite marge à gauche */
+        width: 90%;         /* Prend 90% de la largeur de la case du cours */
+        min-width: unset;   /* Annule la largeur forcée de la version PC */
+        max-width: 90vw;    /* Sécurité : ne dépasse jamais 90% de l'écran entier */
+        
+        box-sizing: border-box;
+        white-space: normal; /* Autorise le texte à revenir à la ligne */
+        word-wrap: break-word; /* Coupe les mots trop longs si nécessaire */
+        
+        /* Ajustements visuels pour le tactile */
+        padding: 10px;
+        font-size: 0.85em;
+        line-height: 1.4;
+    }
+}
+
+
+/* 1. Par défaut (PC, écrans larges, ou mobile paysage), on cache le message */
+.message-rotation {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 1.2em;
+    color: #555;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px;
+}
+
+/* 2. Sur mobile en mode PORTRAIT : on cache la grille et on affiche le message */
+@media (max-width: 768px) and (orientation: portrait) {
+    .grille-semaine {
+        display: none !important; /* Masque tout le tableau de la semaine */
+    }
+    
+    .message-rotation {
+        display: block; /* Affiche le message demandant de tourner l'écran */
+    }
+}
+
+/* 3. Sur mobile en mode PAYSAGE : le comportement redevient normal */
+/* (La grille s'affiche car le 'display: none' du portrait ne s'applique plus) */
+@media (max-height: 500px) and (orientation: landscape) {
+    /* Tu peux ajouter ici des ajustements spécifiques au mode paysage si besoin */
+    /* Exemple : réduire un peu les marges ou la taille de la police pour gagner de la place */
+    .cours-contenu {
+        font-size: 0.8em;
+    }
+}

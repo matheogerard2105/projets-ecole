@@ -1,0 +1,9 @@
+Flot maximum : 40
+Flux courant de chaque arc :
+Arc de 1 à 4 : 20 / 20
+Arc de 1 à 2 : 20 / 20
+Arc de 2 à 4 : 10 / 10
+Arc de 2 à 3 : 10 / 10
+Arc de 3 à 5 : 20 / 30
+Arc de 4 à 5 : 20 / 20
+Arc de 4 à 3 : 10 / 10

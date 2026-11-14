@@ -1,0 +1,17 @@
+build/
+dist/
+
+*.jar
+*.war
+*.ear
+
+.vscode/
+
+.settings/
+.classpath
+.project
+bin/
+.DS_Store
+
+*.log
+

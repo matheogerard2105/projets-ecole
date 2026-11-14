@@ -1,0 +1,71 @@
+#back{
+    background-color: rgb(50,50,50);
+}
+main{
+    color:rgb(200,200,200);
+}
+#zs1,#zs2,#zs3,#zs4,#zs5,#zs6{
+    background-color: rgb(30,30,30);
+    height: 200px;
+}
+.tstat{
+    color:rgb(200,200,200);
+    text-align: center ;
+    font-size: 24px;
+}
+#s1,#s2,#s3,#s4,#s5,#s6{
+    color:aquamarine;
+    text-align: center;
+    font-size: 44px;
+    font-weight: bold;
+    text-shadow: 0px 0px 5px white;
+
+}
+#z1, #z2, #z3, #z4{
+    background-color: rgb(30,30,30);
+}
+#z1{
+    margin-left: 20px;
+    margin-right: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height :600px;
+}
+#z2{
+    z-index: 1;
+    margin-left: 10px;
+    margin-right: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height :600px;
+}
+#z3{
+    margin-left: 20px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    height :600px;
+}
+#z4{
+    margin-left: 10px;
+    margin-right: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    height :600px;
+    background-color: rgb(30,30,30);
+}
+body{
+    width: 1440px;
+    height: 900px;
+}
+#lien{
+    color:aquamarine;
+    text-align: center;
+}
+h1{
+    text-align: center;
+    color: aquamarine;
+}
+#h5{
+    margin-left: -15px;
+}
