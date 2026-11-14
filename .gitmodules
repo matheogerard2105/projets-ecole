@@ -1,0 +1,9 @@
+[submodule "projet-perso/paddock26"]
+	path = projet-perso/paddock26
+	url = https://github.com/matheogerard2105/paddock26.git
+[submodule "projet-perso/nofon"]
+	path = projet-perso/nofon
+	url = https://github.com/matheogerard2105/nofon.git
+[submodule "projet-perso/turn-it"]
+	path = projet-perso/turn-it
+	url = https://github.com/matheogerard2105/turn-it.git

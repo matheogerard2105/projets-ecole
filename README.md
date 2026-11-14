@@ -4,10 +4,12 @@
 **Informatique, Statistique et Intelligence Artificielle (ISIA)**.
 
 Ce dépôt rassemble les principaux projets que j'ai réalisés au cours de mon cycle ingénieur
-(2024 – 2027), le plus souvent en binôme ou en équipe. Il accompagne mes deux CV :
+(2024 – 2027), le plus souvent en binôme ou en équipe, ainsi que mes projets personnels.
+Il accompagne mes deux CV :
 
 - **CV « Stage Data Scientist / Data Analyst »** → voir la partie [01 – Data Science & IA](#01--data-science--ia)
 - **CV « Stage Développeur logiciel »** → voir la partie [02 – Développement logiciel](#02--développement-logiciel)
+  et les [projets personnels](#projets-personnels)
 
 ---
 
@@ -18,7 +20,8 @@ projets-ecole/
 ├── 01-Data-Science-IA/            → projets mis en avant dans le CV Data
 ├── 02-Developpement-Logiciel/     → projets mis en avant dans le CV Développeur
 ├── 03-Mathematiques-Appliquees/   → modélisation, probabilités, optimisation
-└── 04-Gestion-de-Projet/          → projet commun aux deux CV (PSI)
+├── 04-Gestion-de-Projet/          → projet commun aux deux CV (PSI)
+└── projet-perso/                  → projets personnels (rubrique « Projets personnels » du CV Développeur)
 ```
 
 ### Pourquoi ce classement ?
@@ -38,6 +41,8 @@ recruteur qui lit l'un ou l'autre trouve tout de suite le code correspondant :
    « Statistiques, probabilités, optimisation » du CV Data et à la formation ISIA.
 4. **Gestion de projet** contient le projet PSI. Il figure sur **les deux CV**, c'est pourquoi
    il a sa propre catégorie.
+5. **Projets personnels** regroupe les applications et les jeux que je développe en dehors des
+   cours. Ils correspondent à la rubrique « Projets personnels » du CV Développeur.
 
 Dans chaque catégorie, les projets sont classés **du plus représentatif au moins représentatif**
 du poste visé.
@@ -81,11 +86,23 @@ du poste visé.
 
 ---
 
+## Projets personnels
+
+Ces projets ont chacun leur propre dépôt. Les dossiers `paddock26`, `nofon` et `turn-it` sont
+des liens (sous-modules Git) vers ces dépôts : un clic ouvre le dépôt complet, toujours à jour.
+
+| Projet | Description | Technologies |
+|---|---|---|
+| [Paddock 26](https://github.com/matheogerard2105/paddock26) | Simulateur de course automobile en 3D inspiré du règlement 2026, jouable dans le navigateur et sur Android : moteur physique indépendant du rendu (adhérence, usure des pneus, météo, stratégies des IA), 24 circuits, mode carrière, replays et export vidéo. | JavaScript, three.js, Web Audio, Node.js, Android (WebView) |
+| [Nofon](https://github.com/matheogerard2105/nofon) | Application Android pour reprendre le contrôle de son temps d'écran : objectifs avec mises (argent simulé), seul ou en groupe, badges, fil d'activité entre amis. Toute la logique sensible est côté serveur. | Kotlin, Jetpack Compose, MVVM, Hilt, Room, Supabase (PostgreSQL, Row Level Security) |
+| [Turn It](https://github.com/matheogerard2105/turn-it) | Jeu d'alignement de pions sur une grille qui pivote : IA minimax sur 13 niveaux, multijoueur en ligne validé par le serveur, parties classées avec système elo, application installable (PWA) et Android. | JavaScript, Node.js, WebSocket, SQLite |
+| [Turn It – version Unity](projet-perso/turn-it-unity) | Première version mobile de Turn It, développée sous Unity. La logique du jeu se trouve dans `Assets/GameManager.cs`. | Unity, C# |
+
+---
+
 ## Remarques
 
-- La plupart de ces projets ont été réalisés en binôme ou en équipe. Les noms des autres
+- La plupart des projets d'école ont été réalisés en binôme ou en équipe. Les noms des autres
   membres figurent dans les rapports et dans les fichiers README des projets.
 - Les supports de cours fournis par les enseignants ne sont pas inclus. Certains énoncés sont
   conservés lorsqu'ils aident à comprendre le contexte du projet.
-- Mes projets personnels (jeux Unity en C#, applications Node.js) se trouvent dans les autres
-  dépôts de mon profil : [github.com/matheogerard2105](https://github.com/matheogerard2105).
